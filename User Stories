@@ -2,13 +2,13 @@ Here are the 10 User Stories that our application's Functional Requirements will
 ------------------------------------------------------------------------------------------------
 Identifier      || User Stories                                               || Size
 ------------------------------------------------------------------------------------------------
-REQ - 1         ||
-REQ - 2         ||
-REQ - 3         ||
-REQ - 4         ||
-REQ - 5         ||
-REQ - 6         ||
-REQ - 7         ||
-REQ - 8         ||
-REQ - 9         ||
-REQ - 10        ||
+REQ - 1         || As a user, I will be able to play a chosen card each round
+REQ - 2         || As a user, I will be able to initially chose a bidding amount from 0-18 points
+REQ - 3         || As a user, if I they win the bid, they have to be able to chose the trump suit
+REQ - 4         || As a user, once trump suit is chosen, the user has the ability to chose which which non-trump suit cards to discard
+REQ - 5         || As a user, if no one bids, dealer has to take a bid of two
+REQ - 6         || As a user, if user doesn't make bid, they will lose that many points at the end of the round
+REQ - 7         || As a user, if user makes or goes over bid, they will gain as many points as they earned at the end of the round
+REQ - 8         || As a user, they have the option to check the scoreboard throughout the round
+REQ - 9         || As a user, after each game, they have the option to start a new one
+REQ - 10        || As a user, if the user's point reach or exceed the assigned maximum, user wins and game ends
