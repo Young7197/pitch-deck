@@ -12,3 +12,10 @@ REQ - 7      || As a user, if I make or go over bid, I will gain as many points 
 REQ - 8      || As a user, I have the option to check the scoreboard throughout the round                                                  || 4 points
 REQ - 9      || As a user, after each game, I have the option to start a new one                                                           || 4 points
 REQ - 10     || As a user, if my points reach or exceed the assigned winning value, I win and the game ends                                || 2 points
+
+
+- Feature #1: Choose Card
+- Feature #2: Choose Bid
+- Feature #3: Choose Suit
+- Feature #4: Choose Max Game Points
+- Feature #5: 
