@@ -12,19 +12,8 @@ REQ - 7      || As a user, if I make or go over bid, I will gain as many points 
 REQ - 8      || As a user, I have the option to check the scoreboard throughout the round                                                  || 4 points
 REQ - 9      || As a user, after each game, I have the option to start a new one                                                           || 4 points
 REQ - 10     || As a user, if my points reach or exceed the assigned winning value, I win and the game ends                                || 2 points
-
-- Feature #1: The system must allow the user to be able to choose a card each round to play/discard
-- Feature #2: The system must allow the user to be able to choose their bidding amount
-- Feature #3: The system must allow the user to be able to choose their trump suit
-- Feature #4: The system must allow the user to be able to choose the max game points to win
-- Feature #5: The system must allow the user to be able to view the scoreboard
-- Feature #6: The system must allow the user to be able to...
-- Feature #7: The system must allow the user to be able to...
-- Feature #8: The system must allow the user to be able to...
-- Feature #9: The system must allow the user to be able to start a new game
-- Feature #10: The system must allow the user to be able to leave the game
 --------------------------------------------------------------------------------------------------------------------------------------------------------
-- Use Case #1: Choose Card
+- Feature #1: Choose Card
 - Feature #2: Choose Bid
 - Feature #3: Choose Suit
 - Feature #4: Choose Max Game Points
@@ -34,3 +23,14 @@ REQ - 10     || As a user, if my points reach or exceed the assigned winning val
 - Feature #8: Win/Lose Screen
 - Feature #9: Receiving Cards
 - Feature #10: Leave Game
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+- Feature #1: The system must allow the user to be able to choose a valid card each round to play or discard.
+- Feature #2: The system must allow the user to be able to choose their bidding amount at the start of each round.
+- Feature #3: The system must allow the user to be able to choose the trump suit for a round if they win the bid.
+- Feature #4: The system must allow the user to be able to choose the value for the winning points at the beginning of a game.
+- Feature #5: The system must allow the user to be able to view the scoreboard anytime during the round and at the end of each round.
+- Feature #6: The system must restrict the user from being able to play or discard invalid cards when it is their turn.
+- Feature #7: The system must add/subtract the points equal to or exceeding the user bid that said user won/lost each round.
+- Feature #8: The system must end the game for the user and display a win/lose screen when a player’s score meets or exceeds the winning point value.
+- Feature #9: The system must deal the correct number of cards to each player at the start of each round and every time a player discards cards.
+- Feature #10: The system must allow the user to be able to start a new game after the current game ends.
