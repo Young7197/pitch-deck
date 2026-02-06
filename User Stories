@@ -15,14 +15,14 @@ REQ - 10     || As a user, if my points reach or exceed the assigned winning val
 
 - Feature #1: Being able to choose a card each round and to discard
 - Feature #2: Choose Bid
-- Feature #3: Choose Suit
+- Feature #3: Choose Trump
 - Feature #4: Choose Max Game Points
 - Feature #5: View Scoreboard
 - Feature #6: Card Lock
 - Feature #7: Score Points
 - Feature #8: Win/Lose Screen
 - Feature #9: Receiving Cards
-- Feature #10:
+- Feature #10: Leave game
 --------------------------------------------------------------------------------------------------------------------------------------------------------
 - Use Case #1: Choose Card
 - Feature #2: Choose Bid
