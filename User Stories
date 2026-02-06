@@ -33,4 +33,4 @@ REQ - 10     || As a user, if my points reach or exceed the assigned winning val
 - Feature #7: The system must add/subtract the points equal to or exceeding the user bid that said user won/lost each round.
 - Feature #8: The system must end the game for the user and display a win/lose screen when a player’s score meets or exceeds the winning point value.
 - Feature #9: The system must deal the correct number of cards to each player at the start of each round and every time a player discards cards.
-- Feature #10: The system must allow the user to be able to start a new game after the current game ends.
+- Feature #10: The system must allow the user to be able to start a new game when first loaded in and after the current game ends.
