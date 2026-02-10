@@ -13,9 +13,13 @@ Week: January 22 - 28
 Total hours per week: 1
 
 Date:                                               | 1/22/2026
+
 Hours Spent:                                        | 1 hour
+
 Type of component, implementation, or document:     | Charter
+
 Which specific part YOU worked on:                  | Project Summary, Stockholders, and Deliverables
+
 Summary:                                            | Prior our team had assigned roles to complete the Charter by Friday (January 23, 2026)                                                     | before class. Therefore if anyone had any questions about their section, we could
                                                     | clean it up as a group before the project leader (Sophia) had to hand it in. For the 
                                                     | project summary I had to access why the game needed top be created, and how it added
