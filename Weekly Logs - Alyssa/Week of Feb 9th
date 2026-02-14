@@ -1,0 +1,23 @@
+1) Date on which you worked on the project.
+- February 9th, February 11th, February 13th
+
+2) Number of hours spent on that day.
+- About 30 minutes on the 9th, an hour on the 11th, and an hour on the 13th
+
+3) Type of component, implementation or document.
+- Software Requirement Specification Document (SRS)
+
+4) Which specific part did you work with, e.g. requirement number or section of a document.
+- Use Cases (3.3.4 & 3.3.5), Design Contraints (3.5), Logical Database Requirements (3.6), Analysis Models (4), Change Management Process (5)
+
+5) Brief summary (3-4 sentences) of what was accomplished during this time.
+- After my group completed fleshing out our application's functional requirements last week, we moved onto the various use cases born from those
+same requirements. I was assignment to the last 2 requirements and while I couldn't really create any use cases from requirement 9, I could create
+2 from requirement 10. I talked over my possible use cases with my team on Monday (the 9th) and filled out the 2 use case templates later that day.
+On Wednesday (the 11th), our team assigned the rest of section 3, the parts below the use cases, where I did the design contraints, which did take more
+time to figure out what those were, and the the logical database requirements, which was rather straightforward since there was no login system planned.
+Finally, on Friday (the 13th), I completed the analysis models for my two use cases in class and since I was the first in my group to finish, I also tackled
+the change management process and did that section on my own.
+
+6) Total number of hours worked during the week.
+- Over 2 and a half hours on my own
