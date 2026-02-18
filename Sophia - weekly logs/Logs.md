@@ -47,7 +47,7 @@ Summary:                                            | In class we have slowly be
                                                     |
 
 Week: February 4 - 14
-Total hours per week:
+Total hours per week: 4 hours
 
 Date:                                               | February 10, 2026
 Hours Spent:                                        | 4 hours
@@ -61,5 +61,15 @@ Summary:                                            | In class we had finished d
                                                     | total game points, score board, and card lock. I also worked on sections for Non
                                                     | Functional Requirements, Performance, and Reliability. 
                                                     |
+Week: February 15 - 21
+Total hours per week: 1 hour
 
+Date:                                               | February 17, 2026
+Hours Spent:                                        | 1 hour
+Type of component, implementation, or document:     | SRS
+Which specific part YOU worked on:                  | SRS diagrams: card lock, view scoreboard, total game points 
+Summary:                                            | Our team was nearing the end of our SRS. We decided that everyone had to create the
+                                                    | diagrams for the user case that they created. This is because the person that created
+                                                    | it knows how it should function. 
+                                                    |
                                                     
