@@ -1,0 +1,23 @@
+1) Date on which you worked on the project.
+- February 26th & February 27th
+
+2) Number of hours spent on that day.
+- About an hour on the on the 26th and an hour and a half on the 27th
+
+3) Type of component, implementation or document.
+- Software Design Specification Document (SDS)
+
+4) Which specific part did you work with, e.g. requirement number or section of a document.
+- Overview of Module/Components (2.1) & User Interface (2.3)
+
+5) Brief summary (3-4 sentences) of what was accomplished during this time.
+- I started with the SDS document on Thursday (26th) where I wrote down what would comprise the user interface since that
+was something I already knew. I knew how the game would work so I broke down the explainations into the different user interactible
+HTML screen where I explained what interactible features they would be composed of, what the screens themselves would show, and how
+they were connected to each other. I even designed a quick rough draft of the HTML screens and their relationships. Of course, that 
+part will probably be editted later, but at least I wrote down the basic framework. On Friday (27th), I completed the domain model
+for the "New Game" use case. However, since the domain model confused me, it took much longer than expected to complete it and I'm 
+still not certain on its correctness. Either way, I did the best I could.
+
+6) Total number of hours worked during the week.
+- Over 2 and a half hours
