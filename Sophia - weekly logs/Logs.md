@@ -72,4 +72,17 @@ Summary:                                            | Our team was nearing the e
                                                     | diagrams for the user case that they created. This is because the person that created
                                                     | it knows how it should function. 
                                                     |
+
+Week: March 2 - 6
+Total hours per week: 2 hours
+
+Date:                                               | March 3, 2026 
+Hours Spent:                                        | 2
+Type of component, implementation, or document:     | Design document 
+Which specific part YOU worked on:                  | 2.2 - Card selection
+Summary:                                            | Our team decided to split the design document up. For sections 2.1 and 2.2 everyone
+                                                    | was assigned either a chart to fill out or create. I filled out Card selection in 2.2
+                                                    | builing of the created graph in 2.1. 
+                                                    |
+
                                                     
