@@ -61,7 +61,7 @@ Summary:                                            | In class we had finished d
                                                     | total game points, score board, and card lock. I also worked on sections for Non
                                                     | Functional Requirements, Performance, and Reliability. 
                                                     |
-Week: February 15 - 21
+Week: February 15 - 23
 Total hours per week: 1 hour
 
 Date:                                               | February 17, 2026
