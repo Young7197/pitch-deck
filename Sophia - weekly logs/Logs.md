@@ -83,6 +83,19 @@ Which specific part YOU worked on:                  | 2.2 - Card selection
 Summary:                                            | Our team decided to split the design document up. For sections 2.1 and 2.2 everyone
                                                     | was assigned either a chart to fill out or create. I filled out Card selection in 2.2
                                                     | builing of the created graph in 2.1. 
+Week: March 7 - 14 SPRING BREAK
+
+Week: March 15 - 22
+Total hours per week:
+
+Date:                                               | March 16, 2026
+Hours Spent:                                        | 2 hours
+Type of component, implementation, or document:     | Design Document
+Which specific part YOU worked on:                  | 2.2 and 3.5 - 3.8
+Summary:                                            | Our team had fallen behind on the design document as a result of midterms and spring
+                                                    | break. As a result we were put in a time crunch sections 3.5 - 3.8 and 2.2 needed to
+                                                    | be completed. These sections looked at locical/detailed parts of the game that needed
+                                                    | to be implemented. 
                                                     |
 
                                                     
