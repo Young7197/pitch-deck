@@ -98,4 +98,14 @@ Summary:                                            | Our team had fallen behind
                                                     | to be implemented. 
                                                     |
 
+Date:                                               | March 16, 2026
+Hours Spent:                                        | 3 hours
+Type of component, implementation, or document:     | Implementation - Sprint 1
+Which specific part YOU worked on:                  | Deck Class
+Summary:                                            | As apart of sprint 1, our team decided that the user needed to recieve cards. On this
+                                                    | portion Alyssa and I were working hand and hand to create the backend of this
+                                                    | function. I created the deck class and she will work on the User class that interacts
+                                                    | with the deck. 
+                                                    |
+
                                                     
