@@ -1,0 +1,28 @@
+1) Date on which you worked on the project.
+- March 16th, 19th, 20th
+
+2) Number of hours spent on that day.
+- About 35 minutes on the planning document on the 16th
+- About 3 hours and 20 minutes on the player/deck class on the 19th 
+- About 15 minutes redoing the sprint planning document on the 20th
+
+3) Type of component, implementation or document.
+- Sprint #1 Planning Document, Requirement #1 Implementation
+
+4) Which specific part did you work with, e.g. requirement number or section of a document.
+- Sprint #1 Planning Document: All of it except when my team member claimed certain tasks and wrote their estimated completion time
+- Requirement #1 Implementation: Created the Player class with it's corresponding functionalities, helped Sophia optimize the Deck class 
+  and it's corresponding functionalities using the Player class, and found card assests for the graphics of the cards.
+
+5) Brief summary (3-4 sentences) of what was accomplished during this time.
+- On Monday (16th), I did most of the planning sprint #1 planning document since my other team members were finishing up the SDS
+and we met on Tuesday briefly to finalize who was doing what in terms of the implementation tasks. On Wednesday (19th), Sophia and I,
+only group members in class, discussed the format for the implementation where she designed the Deck class and I design the Player
+class, after which, I used that newly created Player class to optimize her Deck class so there would be no repeating code. Then, 
+I tested everything to make sure the player creation worked, the cards were created, the shuffling was random each time, said
+random cards were properly distributed to each player, each player's hand could be viewed, and a card could be played (removed from
+the player's hand). On Friday (20th), while discussing our progress, it was brought to our attention that our planning document schedule 
+was done poorly so I spent some time revising said planning document so it fit more of the agile framework (which, honestly, we were mostly doing anyways).
+
+6) Total number of hours worked during the week.
+- Over 4 hours and 10 minutes
