@@ -1,14 +1,15 @@
 #Libraries needed
+from flask import Flask, request, render_template, redirect
 import random
-from flask import Flask, request, jsonify, render_template
 
-app = Flask(__name__) #If running on flask
+# Initialize Flask
+app = Flask(__name__)
 
 #Deck Object
 class Deck:
     #Constructor
     def __init__(self):       
-        #Defining suits and their corresponding cards 
+        #Defining suits and their corresponding ranks 
         self.suits = ["Spades", "Clubs", "Hearts", "Diamonds"]
         self.spades = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"]
         self.clubs = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"]
@@ -16,10 +17,13 @@ class Deck:
         self.diamonds = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"]
         
         #Defining Players (Player1, Player2, Player3, Dealer)
-        self.player1 = Player("Player 1")
-        self.player2 = Player("Player 2")
-        self.player3 = Player("Player 3")
-        self.dealer = Player("Dealer")
+        self.player1 = Player("Player 1") #User
+        self.player2 = Player("Player 2") #Bot
+        self.player3 = Player("Player 3") #Bot
+        self.player4 = Player("Player 4") #Bot
+
+        #Defining the list to keep track of played cards
+        self.played_cards = []
         
     #Task: Deals 6 random cards to each player
     #Precondition: Round must start
@@ -57,19 +61,22 @@ class Deck:
                 
             if i in list(range(9, 12)) + list(range(21, 24)):
                 self.dealer.add_card(randomSuit, randomCard)
-
-    def card_image(card):
-        suit, card = card
-        image = f"{suit}_{card}.png"
-        return (image)
+    
+#Task: Connects the card to their appropiate image
+#Precondition: Cards are created
+#Postcondition: Visible cards will have an associated image attached
+def card_to_image(card):
+    suit, rank = card
+    return f"{suit}_{rank}.png"
 
 #Player Object
 class Player:
     #Constructor
     def __init__(self, name):
-        self.name = name     #Player Name (Player1, Player2, Player3, Dealer)
-        self.hand = []       #Player's cards
-        self.bid = 0         #Player's bid (default 0)
+        self.name = name       #Player Name (Player1, Player2, Player3, Dealer)
+        self.hand = []         #Player's cards
+        self.bid = 0           #Player's bid (default 0)
+        self.is_dealer = False #Is player the dealer?
 
     #Task: Adds card to a player's hand
     #Precondition: Round must start
@@ -86,25 +93,28 @@ class Player:
     #Task: Allows player to play a card of their choice
     #Precondition: Cards have been dealt & it's the player's turn
     #Postcondition: Card that has been selected will be played and removed from player's hand
-    def play_card(self, index):
-        return self.hand.pop(index)
+    def play_card(self, index, deck):
+        card = self.hand.pop(index)
+        deck.played_cards.append(card)
+        return card
 
-#Task: Convert each card to its image path
-#Precondition: Cards have been dealt to each player
-#Postcondition: Dealt cards will appear with matching card graphics
 @app.route("/game")
 def home():
-    player_hand = deck.dealer.show_hand()
-    card_images = [f"/static/cards/{card_image(card)}" for card in player_hand]
+    user_hand = deck.player1.show_hand()
 
-    return render_template("game.html", card_images=card_images)
+    # Convert each card to its image path
+    hand_images = [f"/static/cards/{card_to_image(card)}" for card in user_hand]
+    played_images = [f"/static/cards/{card_to_image(card)}" for card in deck.played_cards]
+
+    return render_template("game.html", hand_images=hand_images, played_images=played_images)
+
+@app.route("/play_card", methods=["GET", "POST"])
+def play_card():
+    index = int(request.form["index"])
+    deck.player1.play_card(index, deck=deck)
+    return redirect("/game")
                 
 if __name__ == "__main__":
-    app.run(debug=True)   #If running on flask
     deck = Deck()         #Create the Deck Object
     deck.deal()           #Run your deal function
-
-    print("Player 1:", deck.player1.show_hand())
-    print("Player 2:", deck.player2.show_hand())
-    print("Player 3:", deck.player3.show_hand())
-    print("Dealer:", deck.dealer.show_hand())
+    app.run(debug=True)
