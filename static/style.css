@@ -1,0 +1,39 @@
+.card-button {
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 5px;
+}
+
+.hand-position-user {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+}
+
+.hand-position-user .card-image {
+    width: 80px;
+    height: 120px;
+    cursor: pointer;
+}
+
+/* Container to hold deck images */
+.deck-stack {
+    position: relative;
+    width: 80px;      
+    height: 120px;      
+    overflow: hidden;
+    top: 170px;
+    left: 590px; 
+}
+
+.deck-stack .card-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;       
+    height: 100%;
+}

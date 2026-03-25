@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<!--Top of "Gameboard" page-->
+<head>
+    <title>Gameboard for the Pitch Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<!--Body of "Home" page-->
+<body>
+    <!--Displaying the picture of the card and selecting one-->
+    <div class = "hand-position-user">
+        <form method="POST" action="/play_card">
+            {% for image_path in hand_images %}
+                <button type="submit" name="index" value="{{ loop.index0 }}" class="card-button">
+                    <img src="{{ image_path }}" class="card-image">
+                </button>
+            {% endfor %}
+        </form>
+    </div>
+
+    <div class = "deck-stack">
+        {% for card_path in played_images %}
+            <img src="{{ card_path }}" class="card-image">
+        {% endfor %}
+    </div>
+
+    <div>
+        <p>User Bid: {{ user_bid }}</p>
+    </div>
+
+    <div>
+        <p>Trump Suit: {{ round_suit }}</p>
+    </div>
+
+    <!--Style of the page-->
+    <style>
+        html, body {
+            background-color: lightgreen;            
+            font-family: Arial, sans-serif;
+            margin: 0px;
+            padding: 0px;
+        }
+    </style>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
