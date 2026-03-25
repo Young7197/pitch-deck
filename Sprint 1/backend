@@ -60,7 +60,7 @@ class Deck:
                 self.player3.add_card(randomSuit, randomCard)
                 
             if i in list(range(9, 12)) + list(range(21, 24)):
-                self.dealer.add_card(randomSuit, randomCard)
+                self.player4.add_card(randomSuit, randomCard)
     
 #Task: Connects the card to their appropiate image
 #Precondition: Cards are created
@@ -97,6 +97,13 @@ class Player:
         card = self.hand.pop(index)
         deck.played_cards.append(card)
         return card
+
+#Round object
+class Round:
+    #Constructor
+    def __init__(self):
+        roundNumber = 0      #Number of the round
+        trumpSuit = '???'    #Trump suit for round
 
 @app.route("/game")
 def home():
