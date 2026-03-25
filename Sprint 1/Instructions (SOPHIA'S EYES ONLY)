@@ -1,0 +1,6 @@
+Terminal: cd OneDrive\Documents\'Python Scripts'\pitch-deck   <-- depending on your filing organization
+Download: 
+- virtual enviroment: python -m venv venv
+- Flask: pip install Flask
+Terminal: source venv/bin/activate
+Terminal: python app.py
