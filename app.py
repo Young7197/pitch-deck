@@ -105,12 +105,9 @@ class Round:
         roundNumber = 0      #Number of the round
         trumpSuit = '???'    #Trump suit for round
 
-
 @app.route("/game")
 def home():
     user_hand = deck.player1.show_hand()
-    user_bid = player.player1.bid
-    round_suit = round.trumpSuit
 
     # Convert each card to its image path
     hand_images = [f"/static/cards/{card_to_image(card)}" for card in user_hand]
