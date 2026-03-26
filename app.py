@@ -3,7 +3,8 @@ from flask import Flask, request, render_template, redirect
 import random
 
 # Initialize Flask
-app = Flask(__name__)
+#Carlos -> i have added those folder paths to make it work for me
+app = Flask(__name__, template_folder=".", static_folder=".", static_url_path="/static")
 
 #Deck Object
 class Deck:
@@ -75,7 +76,8 @@ class Player:
     def __init__(self, name):
         self.name = name       #Player Name (Player1, Player2, Player3, Dealer)
         self.hand = []         #Player's cards
-        self.bid = 0           #Player's bid (default 0)
+        # None means "bid has not been selected yet". This is required because 0 is a valid bid.
+        self.bid = None
         self.is_dealer = False #Is player the dealer?
 
     #Task: Adds card to a player's hand
@@ -98,12 +100,14 @@ class Player:
         deck.played_cards.append(card)
         return card
 
-#Round object
-class Round:
-    #Constructor
-    def __init__(self):
-        roundNumber = 0      #Number of the round
-        trumpSuit = '???'    #Trump suit for round
+#Carlos -> i have moved this here because with the run i doesn't work for me
+deck = Deck()
+deck.deal()
+
+#Also creted a / route to make it work for me
+@app.route("/")
+def index():
+    return redirect("/game")
 
 @app.route("/game")
 def home():
@@ -113,7 +117,36 @@ def home():
     hand_images = [f"/static/cards/{card_to_image(card)}" for card in user_hand]
     played_images = [f"/static/cards/{card_to_image(card)}" for card in deck.played_cards]
 
-    return render_template("game.html", hand_images=hand_images, played_images=played_images)
+    return render_template(
+        "game.html",
+        hand_images=hand_images,
+        played_images=played_images,
+        player_bid=deck.player1.bid,
+        is_bid_set=deck.player1.bid is not None #for the pop-up window logic
+    )
+
+""" Set bid """
+@app.route("/set_bid", methods=["POST"])
+def set_bid():
+    # Bid is submitted by the popup form as plain text. Parse and validate it defensively.
+    raw_bid = request.form.get("bid", "").strip()
+
+    try:
+        # Try to parse it into integer.
+        selected_bid = int(raw_bid)
+    except ValueError:
+        # Ignore invalid payloads and return to the game view.
+        return redirect("/game")
+    
+    #Set min a max values for the bid for higher robustness
+
+    if selected_bid < 0 or selected_bid > 18:
+        # Keep the existing value unchanged when the range is invalid.
+        return redirect("/game")
+
+    #If bid is valid, set it to the player and load the game view
+    deck.player1.bid = selected_bid
+    return redirect("/game")
 
 @app.route("/play_card", methods=["GET", "POST"])
 def play_card():
@@ -122,6 +155,4 @@ def play_card():
     return redirect("/game")
                 
 if __name__ == "__main__":
-    deck = Deck()         #Create the Deck Object
-    deck.deal()           #Run your deal function
     app.run(debug=True)
