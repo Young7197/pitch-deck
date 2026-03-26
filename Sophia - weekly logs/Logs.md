@@ -86,7 +86,7 @@ Summary:                                            | Our team decided to split 
 Week: March 7 - 14 SPRING BREAK
 
 Week: March 15 - 22
-Total hours per week:
+Total hours per week: 5
 
 Date:                                               | March 16, 2026
 Hours Spent:                                        | 2 hours
@@ -107,5 +107,18 @@ Summary:                                            | As apart of sprint 1, our 
                                                     | function. I created the deck class and she will work on the User class that interacts
                                                     | with the deck. 
                                                     |
+
+Week: March 23 - March 29
+Total hours per week: 4
+
+Date:                                               | March 26, 2026
+Hours Spent:                                        | 4 hours
+Type of component, implementation, or document:     | implementation
+Which specific part YOU worked on:                  | app.py - API / documentation
+Summary:                                            | After our meeting on Wednesday, Alyssa asked me to tweak some of the API calls. I am
+                                                    | also responsible for the documentation for all meetings as Scrum Master. So I had to
+                                                    | learn how API calls functioned and the code for that, and catch up on paperwork. 
+                                                    |
+
 
                                                     
