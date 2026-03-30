@@ -1,9 +1,11 @@
 #Libraries needed
-from flask import Flask, request, render_template, redirect
+from flask import Flask, request, render_template, redirect, jsonify
 import random
 
 # Initialize Flask
 app = Flask(__name__)
+
+deck = None
 
 #Deck Object
 class Deck:
@@ -105,8 +107,34 @@ class Round:
         roundNumber = 0      #Number of the round
         trumpSuit = '???'    #Trump suit for round
 
+#API starting game
+@app.route("/start_game")
+def start_game():
+    global deck              #creating global variable
+    deck = Deck()            #defining variable
+    deck.deal()              #calling deal function
+    return redirect("/game")
+
+@app.route("/game_state")
+def game_state():
+    if deck is None:
+        return jsonify({"error": "Game not started"})
+
+    user_hand = deck.player1.show_hand()
+
+    # Convert each card to its image path
+    hand_images = [f"/static/cards/{card_to_image(card)}" for card in user_hand]
+    played_images = [f"/static/cards/{card_to_image(card)}" for card in deck.played_cards]
+
+    return render_template("game.html", hand_images=hand_images, played_images=played_images)
+    
+
 @app.route("/game")
 def home():
+
+    if deck is None:
+        return "Game note started."
+
     user_hand = deck.player1.show_hand()
 
     # Convert each card to its image path
@@ -117,11 +145,14 @@ def home():
 
 @app.route("/play_card", methods=["GET", "POST"])
 def play_card():
+    global deck
+
+    if deck is None:
+            return "Game not started."
+
     index = int(request.form["index"])
     deck.player1.play_card(index, deck=deck)
     return redirect("/game")
                 
 if __name__ == "__main__":
-    deck = Deck()         #Create the Deck Object
-    deck.deal()           #Run your deal function
     app.run(debug=True)
