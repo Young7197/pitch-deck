@@ -1,11 +1,9 @@
 #Libraries needed
-from flask import Flask, request, render_template, redirect, jsonify
+from flask import Flask, request, render_template, redirect
 import random
 
 # Initialize Flask
 app = Flask(__name__)
-
-deck = None
 
 #Deck Object
 class Deck:
@@ -26,6 +24,9 @@ class Deck:
 
         #Defining the list to keep track of played cards
         self.played_cards = []
+
+        #Defining the game state
+        self.round = Round()
         
     #Task: Deals 6 random cards to each player
     #Precondition: Round must start
@@ -63,13 +64,6 @@ class Deck:
                 
             if i in list(range(9, 12)) + list(range(21, 24)):
                 self.player4.add_card(randomSuit, randomCard)
-    
-#Task: Connects the card to their appropiate image
-#Precondition: Cards are created
-#Postcondition: Visible cards will have an associated image attached
-def card_to_image(card):
-    suit, rank = card
-    return f"{suit}_{rank}.png"
 
 #Player Object
 class Player:
@@ -104,10 +98,23 @@ class Player:
 class Round:
     #Constructor
     def __init__(self):
-        roundNumber = 0      #Number of the round
-        trumpSuit = '???'    #Trump suit for round
+        self.roundNumber = 0      #Number of the round
+        self.trumpSuit = '???'    #Trump suit for round
 
-#API starting game
+#Initializing variables
+deck = Deck()
+deck.deal()
+
+#Task: Connects the card to their appropiate image
+#Precondition: Cards are created
+#Postcondition: Visible cards will have an associated image attached
+def card_to_image(card):
+    suit, rank = card
+    return f"{suit}_{rank}.png"
+
+#Task: API call to define starting a new game
+#Precondition: All associated objects have been created
+#Postcondition: The user can restart the game
 @app.route("/start_game")
 def start_game():
     global deck              #creating global variable
@@ -115,45 +122,40 @@ def start_game():
     deck.deal()              #calling deal function
     return redirect("/game")
 
-@app.route("/game_state")
-def game_state():
-    if deck is None:
-        return jsonify({"error": "Game not started"})
-
-    user_hand = deck.player1.show_hand()
-
-    # Convert each card to its image path
-    hand_images = [f"/static/cards/{card_to_image(card)}" for card in user_hand]
-    played_images = [f"/static/cards/{card_to_image(card)}" for card in deck.played_cards]
-
-    return render_template("game.html", hand_images=hand_images, played_images=played_images)
-    
-
+#Task: API call to define the gameboard screen and functions
+#Precondition: All associated objects have been initialized
+#Postcondition: The gameboard screen is displayed
 @app.route("/game")
 def home():
-
-    if deck is None:
-        return "Game note started."
-
-    user_hand = deck.player1.show_hand()
-
-    # Convert each card to its image path
-    hand_images = [f"/static/cards/{card_to_image(card)}" for card in user_hand]
-    played_images = [f"/static/cards/{card_to_image(card)}" for card in deck.played_cards]
-
-    return render_template("game.html", hand_images=hand_images, played_images=played_images)
-
-@app.route("/play_card", methods=["GET", "POST"])
-def play_card():
     global deck
 
     if deck is None:
-            return "Game not started."
+        deck = Deck()
+        deck.deal()
+
+    user_hand = deck.player1.show_hand()
+    user_bid = deck.player1
+
+    # Convert each card to its image path
+    hand_images = [f"/static/cards/{card_to_image(card)}" for card in user_hand]
+    played_images = [f"/static/cards/{card_to_image(card)}" for card in deck.played_cards]
+
+    return render_template("game.html", 
+    hand_images=hand_images, played_images=played_images, 
+    user_bid=user_bid, round=deck.round)
+
+#Task: API call to define the card selection function
+#Precondition: The cards have been dealt & it's the player's turn
+#Postcondition: The selected card will be removed from the player's hand and moved to the discard pile
+@app.route("/play_card", methods=["GET", "POST"])
+def play_card():
+    global deck
+    if deck is None:
+        return "Game not started."
 
     index = int(request.form["index"])
     deck.player1.play_card(index, deck=deck)
     return redirect("/game")
                 
 if __name__ == "__main__":
-
     app.run(debug=True)
