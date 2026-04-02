@@ -71,13 +71,28 @@ def card_to_image(card):
     suit, rank = card
     return f"{suit}_{rank}.png"
 
+def build_game_context():
+    user_hand = deck.player1.show_hand()
+    user_bid = deck.player1.bid
+
+    # Convert each card to its image path
+    hand_images = [f"/static/cards/{card_to_image(card)}" for card in user_hand]
+    played_images = [f"/static/cards/{card_to_image(card)}" for card in deck.played_cards]
+
+    return {
+        "hand_images": hand_images,
+        "played_images": played_images,
+        "user_bid": user_bid,
+        "show_bid_modal": user_bid is None,
+    }
+
 #Player Object
 class Player:
     #Constructor
     def __init__(self, name):
         self.name = name       #Player Name (Player1, Player2, Player3, Dealer)
         self.hand = []         #Player's cards
-        self.bid = 0           #Player's bid (default 0)
+        self.bid = None           #Player's bid (default None)
         self.is_dealer = False #Is player the dealer?
 
     #Task: Adds card to a player's hand
@@ -107,6 +122,10 @@ class Round:
         roundNumber = 0      #Number of the round
         trumpSuit = '???'    #Trump suit for round
 
+@app.route("/")
+def index():
+    return redirect("/start_game")
+
 #API starting game
 @app.route("/start_game")
 def start_game():
@@ -120,35 +139,47 @@ def game_state():
     if deck is None:
         return jsonify({"error": "Game not started"})
 
-    user_hand = deck.player1.show_hand()
-
-    # Convert each card to its image path
-    hand_images = [f"/static/cards/{card_to_image(card)}" for card in user_hand]
-    played_images = [f"/static/cards/{card_to_image(card)}" for card in deck.played_cards]
-
-    return render_template("game.html", hand_images=hand_images, played_images=played_images)
+    return render_template("game.html", **build_game_context())
     
 
 @app.route("/game")
 def home():
 
     if deck is None:
-        return "Game note started."
+        return "Game not started."
 
-    user_hand = deck.player1.show_hand()
+    return render_template("game.html", **build_game_context())
 
-    # Convert each card to its image path
-    hand_images = [f"/static/cards/{card_to_image(card)}" for card in user_hand]
-    played_images = [f"/static/cards/{card_to_image(card)}" for card in deck.played_cards]
+# Store the bid selected in the opening modal.
+@app.route("/set_bid", methods=["POST"])
+def set_bid():
+    if deck is None:
+        return redirect("/game")
 
-    return render_template("game.html", hand_images=hand_images, played_images=played_images)
+    # Bid is submitted by the popup form as plain text. Parse and validate it defensively.
+    raw_bid = request.form.get("bid", "").strip()
+
+    try:
+        # Try to parse it into integer.
+        selected_bid = int(raw_bid)
+    except ValueError:
+        # Ignore invalid payloads and return to the game view.
+        return redirect("/game")
+    
+    if selected_bid < 0 or selected_bid > 18:
+        # Keep the existing value unchanged when the range is invalid.
+        return redirect("/game")
+
+    # Save the bid so the popup does not appear again during this game state.
+    deck.player1.bid = selected_bid
+    return redirect("/game")
 
 @app.route("/play_card", methods=["GET", "POST"])
 def play_card():
     global deck
 
-    if deck is None:
-            return "Game not started."
+    if deck is None or deck.player1.bid is None:
+        return redirect("/game")
 
     index = int(request.form["index"])
     deck.player1.play_card(index, deck=deck)
