@@ -1,0 +1,26 @@
+1) Date on which you worked on the project.
+- March 30th & 31st; April 1st & 3rd
+
+2) Number of hours spent on that day.
+- About 20 minutes on March 30th
+- About 2 hours and 30 minutes on March 31st
+- About 1 hour and 15 minutes on April 1st
+- About 30 minutes on April 3rd
+
+3) Type of component, implementation or document.
+- Sprint Planning #2 Document, Requirement #11 Implementation, SRS
+
+4) Which specific part did you work with, e.g. requirement number or section of a document.
+- Sprint Planning #2 Document: I filled out the first page and the tasks for Requirement #11
+- Requirement #11 Implementation: I created the Bot class derived off of the Player class & all related functionalities
+- SRS: I added another requirement (#11) to the user stories and SRS to match with the bot logic we were implementing
+
+5) Brief summary (3-4 sentences) of what was accomplished during this time.
+- On Monday (30th), I completed the sprint #2 planning document with the rest of my team where I filled out the first page of information 
+and the tasks for requirement #11. For Tuesday (31st), I worked on creating the Bot class which is derived from the Player class we created
+the previous sprint, including information about the game state the bots must know and their various functionalities. On Wednesday (1st), I
+added the functionality of the bots actually playing a card in their hand after the user. On Friday (3rd), I added the basic AI bot logic
+requirement to the user stories and SRS and emailed my teammates to approve of the changes I made.
+
+6) Total number of hours worked during the week.
+- Over 4 hours and 35 minutes
