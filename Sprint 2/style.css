@@ -1,3 +1,7 @@
+/*******************************************************/
+/*User's hand positioning & functionality*/
+/*******************************************************/
+
 /*Styling the button to select cards as the cards*/
 .card-button {
     border: none;
@@ -59,6 +63,7 @@
 /*******************************************************/
 /*Bot's hand positioning*/
 /*******************************************************/
+
 /*Positioning of the player2's hand (Bot)*/
 .hand-position-player2 {
     position: fixed;
