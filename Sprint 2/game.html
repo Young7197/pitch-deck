@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<!--Heading of "Gameboard" page-->
+<head>
+    <title>Gameboard for the Pitch Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<!--Body of "Gameboard" page-->
+<body>
+    <!--Button to start a new game-->
+    <form action="/start_game" method="GET">
+        <button type="submit">New Game</button>
+    </form>
+
+    <!--Asking user to input their bid-->
+    {% if deck.round.waiting_for_bid %}
+    <div id="bidModal" class="modal">
+    <div class="modal-content">
+        <h2>Enter Your Bid for Round {{ deck.round.roundNumber + 1 }}</h2>
+
+        <form method="POST" action="/set_bid">
+        <input type="number" name="bid" min="0" max="18" required>
+        <button type="submit">Submit Bid</button>
+        </form>
+    </div>
+    </div>
+    {% endif %}
+
+    <!--Displaying the cards in the user's hand and selecting one-->
+    <div class = "hand-position-user">
+        <form method="POST" action="/play_card">
+            {% for image_path in hand_images %}
+                <button type="submit" name="index" value="{{ loop.index0 }}" class="card-button">
+                    <img src="{{ image_path }}" class="card-image">
+                </button>
+            {% endfor %}
+        </form>
+    </div>
+
+    <!--Displaying the cards in player2's hand (Bot)-->
+    <div class = "hand-position-player2">
+        <form method="POST" action="/play_card">
+            {% for image_path in back_images %}
+                <img src="{{ image_path }}" class="card-image">
+            {% endfor %}
+        </form>
+    </div>
+
+    <!--Displaying the cards in player3's hand (Bot)-->
+    <div class = "hand-position-player3">
+        <form method="POST" action="/play_card">
+            {% for image_path in back_images %}
+                <img src="{{ image_path }}" class="card-image">
+            {% endfor %}
+        </form>
+    </div>
+
+    <!--Displaying the cards in player4's hand (Bot)-->
+    <div class = "hand-position-player4">
+        <form method="POST" action="/play_card">
+            {% for image_path in back_images %}
+                <img src="{{ image_path }}" class="card-image">
+            {% endfor %}
+        </form>
+    </div>
+
+    <!--Displaying the last card entered in the discard pile-->
+    <div class = "deck-stack">
+        {% for card_path in played_images %}
+            <img src="{{ card_path }}" class="card-image">
+        {% endfor %}
+    </div>
+
+    <!--Displaying the trump suit for that round-->
+    <div class = "trumpSuit-status">
+        <p>Trump Suit: {{ round.trumpSuit }}</p>
+    </div>
+
+    <!--Displaying the user's bid for that round-->
+    <div class = "bid-status">
+        <p>User Bid: {{ user_bid }}</p>
+    </div>
+
+    <!--Style of the page-->
+    <style>
+        html, body {
+            background-color: lightgreen;            
+            font-family: Arial, sans-serif;
+            margin: 0px;
+            padding: 0px;
+        }
+    </style>
+</body>
+</html>
