@@ -1,9 +1,17 @@
 #Libraries needed
+from pathlib import Path
+
 from flask import Flask, request, render_template, redirect
 import random
 
 # Initialize Flask
-app = Flask(__name__)
+BASE_DIR = Path(__file__).resolve().parent
+app = Flask(
+    __name__,
+    template_folder=str(BASE_DIR),
+    static_folder=str(BASE_DIR),
+    static_url_path="",
+)
 
 #Deck Object
 class Deck:
@@ -101,23 +109,46 @@ class Bot(Player):
         super().__init__(name)
 
     def choose_card(self, round):
+
+        points = {
+            "1" : 1,
+            "2" : 2,
+            "3" : 3,
+            "4" : 4,
+            "5" : 5,
+            "6" : 6,
+            "7" : 7,
+            "8" : 8,
+            "9" : 9,
+            "10" : 10,
+            "Jack" : 11,
+            "Queen" : 12,
+            "King" : 13,
+            "Ace" : 14
+        }
+
         #If there's nothing in the bot's hand
         if not self.hand:
             return None
 
-        #If there's no lead suit yet, play first card
-        lead_suit = round.lead_suit
-        if lead_suit is None:
-            return self.hand.pop(0)
+        #Play the lowest card when leading the trick.
+        if round.lead_suit is None or not round.current_trick:
+            chosen_card = min(self.hand, key=lambda c: points[c[1]])
+            self.hand.remove(chosen_card)
+            return chosen_card
 
-        #Find all cards matching lead suit
-        valid_cards = [card for card in self.hand if card[0] == lead_suit]
+        #Beat the most recent card in the current trick using the same suit.
+        card_to_beat = round.current_trick[-1]
+        target_suit = card_to_beat[0]
+        target_points = points[card_to_beat[1]]
 
-        #If bots have a matching suit, they play it
-        if valid_cards:
-            chosen_card = valid_cards[0]
+        same_suit_cards = [card for card in self.hand if card[0] == target_suit]
+        winning_cards = [card for card in same_suit_cards if points[card[1]] > target_points]
+
+        if winning_cards:
+            chosen_card = min(winning_cards, key=lambda c: points[c[1]])
         else:
-            chosen_card = self.hand[0]
+            chosen_card = min(self.hand, key=lambda c: points[c[1]])
 
         #Remove chosen card from hand
         self.hand.remove(chosen_card)
@@ -163,6 +194,10 @@ def build_game_context():
 #Task: API call to define starting a new game
 #Precondition: All associated objects have been created
 #Postcondition: The user can restart the game
+@app.route("/")
+def index():
+    return redirect("/game")
+
 @app.route("/start_game")
 def start_game():
     global deck              #creating global variable
