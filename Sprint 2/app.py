@@ -71,7 +71,7 @@ class Player:
     def __init__(self, name):
         self.name = name       #Player Name (Player1, Player2, Player3, Dealer)
         self.hand = []         #Player's cards
-        self.bid = 0           #Player's bid (default 0)
+        self.bid = None        #Player's bid (default None)
         self.is_dealer = False #Is player the dealer?
 
     #Task: Adds card to a player's hand
