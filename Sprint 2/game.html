@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<!--Heading of "Gameboard" page-->
+<head>
+    <title>Gameboard for the Pitch Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<!--Body of "Gameboard" page-->
+<body>
+    <!--Button to start a new game-->
+    <form action="/start_game" method="GET">
+        <button type="submit">New Game</button>
+    </form>
+
+    <!--Display the model for chosing that round's bid-->
+    {% if show_bid_modal %}
+        <div class="bid-modal-overlay">
+            <div class="bid-modal">
+                <h2>Select your bid</h2>
+                <p>Choose a valid bid before playing your first card.</p>
+                <form id="bid-form" class="bid-form" method="POST" action="/set_bid">
+                    <div class="bid-stepper">
+                        <button id="decrease-bid" class="bid-stepper-button" type="button">-</button>
+                        <input id="bid-input" name="bid" type="number" min="0" max="18" value="0" required>
+                        <button id="increase-bid" class="bid-stepper-button" type="button">+</button>
+                    </div>
+                    <button class="confirm-bid-button" type="submit">Confirm bid</button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+    <!--Display the user's bid-->
+    <div class="bid-display-panel">
+        <span class="bid-display-label">Current Bid</span>
+        <span class="bid-display-value">
+            {% if user_bid is none %}
+                Pending
+            {% else %}
+                {{ user_bid }}
+            {% endif %}
+        </span>
+    </div>
+
+    <!--Display the round's trump suit-->
+    <div class="trumpSuit-display-panel">
+        <span class="bid-display-label">Round Trump Suit</span>
+        <span class="bid-display-value">
+            {% if round.trumpSuit is none %}
+                Pending
+            {% else %}
+                {{ round.trumpSuit }}
+            {% endif %}
+        </span>
+    </div>
+
+    <!--Displaying the cards in the user's hand and selecting one-->
+    <div class = "hand-position-user">
+        <form method="POST" action="/play_card">
+            {% for image_path in hand_images %}
+                <button type="submit" name="index" value="{{ loop.index0 }}" class="card-button">
+                    <img src="{{ image_path }}" class="card-image">
+                </button>
+            {% endfor %}
+        </form>
+    </div>
+
+    <!--Displaying the cards in player2's hand (Bot)-->
+    <div class = "hand-position-player2">
+        <form method="POST" action="/play_card">
+            {% for image_path in back_images %}
+                <img src="{{ image_path }}" class="card-image">
+            {% endfor %}
+        </form>
+    </div>
+
+    <!--Displaying the cards in player3's hand (Bot)-->
+    <div class = "hand-position-player3">
+        <form method="POST" action="/play_card">
+            {% for image_path in back_images %}
+                <img src="{{ image_path }}" class="card-image">
+            {% endfor %}
+        </form>
+    </div>
+
+    <!--Displaying the cards in player4's hand (Bot)-->
+    <div class = "hand-position-player4">
+        <form method="POST" action="/play_card">
+            {% for image_path in back_images %}
+                <img src="{{ image_path }}" class="card-image">
+            {% endfor %}
+        </form>
+    </div>
+
+    <!--Displaying the last card entered in the discard pile-->
+    <div class = "deck-stack">
+        {% for card_path in played_images %}
+            <img src="{{ card_path }}" class="card-image">
+        {% endfor %}
+    </div>
+
+    <!--Style of the page-->
+    <style>
+        html, body {
+            background-color: lightgreen;            
+            font-family: Arial, sans-serif;
+            margin: 0px;
+            padding: 0px;
+        }
+    </style>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

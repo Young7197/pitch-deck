@@ -1,0 +1,295 @@
+/*******************************************************/
+/*User's hand positioning & functionality*/
+/*******************************************************/
+/*Styling the button to select cards as the cards*/
+.card-button {
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 5px;
+}
+
+/*Positioning of the user's hand*/
+.hand-position-user {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+}
+
+/*Size of the user's cards*/
+.hand-position-user .card-image {
+    width: 80px;
+    height: 120px;
+    cursor: pointer;
+}
+
+/*Positioning of the deck stack*/
+.deck-stack {
+    position: relative;
+    width: 80px;      
+    height: 120px;      
+    overflow: hidden;
+    top: 185px;
+    left: 590px; 
+}
+
+/*Size of the user's cards*/
+.deck-stack .card-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;       
+    height: 100%;
+}
+
+/*******************************************************/
+/*Bot's hand positioning*/
+/*******************************************************/
+/*Positioning of the player2's hand (Bot)*/
+.hand-position-player2 {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%) rotate(90deg);
+    transform-origin: center;
+}
+
+/*Size of the player2's cards*/
+.hand-position-player2 .card-image {
+    width: 80px;
+    height: 120px;
+    margin-left: -20px;
+    cursor: pointer;
+    border: 2px solid white;
+}
+
+/*Keeps first card in line with the others*/
+  .hand-position-player2 .card-image:first-child {
+    margin-left: 0;
+  }
+
+/*Positioning of the player3's hand (Bot)*/
+.hand-position-player3 {
+    position: fixed;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+}
+
+/*Size of the player3's cards*/
+.hand-position-player3 .card-image {
+    width: 80px;
+    height: 120px;
+    cursor: pointer;
+    border: 2px solid white;
+}
+
+/*Positioning of the player4's hand (Bot)*/
+.hand-position-player4 {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%) rotate(-90deg);
+    transform-origin: center;
+}
+
+/*Size of the player4's cards*/
+.hand-position-player4 .card-image {
+    width: 80px;
+    height: 120px;
+    margin-left: -20px;
+    cursor: pointer;
+    border: 2px solid white;
+}
+
+/*Keeps first card in line with the others*/
+  .hand-position-player4 .card-image:first-child {
+    margin-left: 0;
+  }
+
+/*Prevents cards from moving backwards (centers them in a fixed container)*/
+.hand-position-player2,
+.hand-position-player4 {
+    width: 500px;           
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+/*******************************************************/ 
+/*Model for bidding & trump suit panel*/ 
+/*******************************************************/ 
+/*Bidding window model*/ 
+/* Bid styles */
+.bid-display-panel {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 230, 168, 0.55);
+    border-radius: 10px;
+    background: rgba(15, 41, 29, 0.88);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+}
+
+.trumpSuit-display-panel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 230, 168, 0.55);
+    border-radius: 10px;
+    background: rgba(15, 41, 29, 0.88);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+}
+
+.bid-display-label {
+    font-size: 12px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: #d9c889;
+}
+
+.bid-display-value {
+    font-size: 20px;
+    color: #fff7da;
+}
+
+/*******************************************************/ 
+/*Model for bidding model*/ 
+/*******************************************************/ 
+.bid-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(2px);
+}
+
+.bid-modal {
+    width: min(420px, calc(100% - 32px));
+    padding: 24px 24px 20px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 228, 166, 0.7);
+    background: linear-gradient(160deg, #1a4f38 0%, #123525 100%);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    animation: bid-modal-enter 160ms ease-out;
+}
+
+.bid-modal h2 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    color: #fff2c8;
+}
+
+.bid-modal p {
+    margin: 0 0 18px;
+    color: #e9ddb2;
+}
+
+.bid-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.bid-stepper {
+    display: grid;
+    grid-template-columns: 56px 1fr 56px;
+    gap: 10px;
+}
+
+.bid-stepper-button {
+    border: 1px solid #d6b86b;
+    border-radius: 10px;
+    background: #2f6f4f;
+    color: #fff4d2;
+    font-size: 26px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.bid-stepper-button:hover {
+    background: #3a8761;
+}
+
+#bid-input {
+    border: 1px solid #d6b86b;
+    border-radius: 10px;
+    background: #fff6dc;
+    color: #2c3a2f;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    padding: 8px;
+}
+
+.confirm-bid-button {
+    border: none;
+    border-radius: 10px;
+    padding: 11px 12px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a2b22;
+    background: linear-gradient(180deg, #f7d88c 0%, #e0b95a 100%);
+    cursor: pointer;
+    transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.confirm-bid-button:hover {
+    filter: brightness(1.05);
+}
+
+.confirm-bid-button:active {
+    transform: translateY(1px);
+}
+
+@keyframes bid-modal-enter {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 768px) {
+    .deck-stack {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .hand-position-user {
+        width: calc(100% - 24px);
+        justify-content: center;
+        gap: 6px;
+    }
+
+    .hand-position-user .card-image {
+        width: 64px;
+        height: 96px;
+    }
+
+    .bid-display-panel {
+        bottom: 140px;
+        left: 12px;
+    }
+}
