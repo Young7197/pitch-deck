@@ -118,7 +118,32 @@ Which specific part YOU worked on:                  | app.py - API / documentati
 Summary:                                            | After our meeting on Wednesday, Alyssa asked me to tweak some of the API calls. I am
                                                     | also responsible for the documentation for all meetings as Scrum Master. So I had to
                                                     | learn how API calls functioned and the code for that, and catch up on paperwork. 
+  
+Week: March 29 - April 4
+
+Date:                                               | 
+Hours Spent:                                        |
+Type of component, implementation, or document:     | 
+Which specific part YOU worked on:                  | 
+Summary:                                            | 
+                                                    |
+Week: April 5 - April 12
+
+Date:                                               | 
+Hours Spent:                                        |
+Type of component, implementation, or document:     | 
+Which specific part YOU worked on:                  | 
+Summary:                                            | 
                                                     |
 
+Week: April 13 - April 19
+
+Date:                                               | 
+Hours Spent:                                        |
+Type of component, implementation, or document:     | 
+Which specific part YOU worked on:                  | 
+Summary:                                            | 
+                                                    |
+                            
 
                                                     
