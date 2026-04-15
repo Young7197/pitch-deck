@@ -1,9 +1,18 @@
 #Libraries needed
-from flask import Flask, request, render_template, redirect
+from pathlib import Path
+from flask import Flask, request, render_template, redirect, send_from_directory, jsonify
 import random
 
 # Initialize Flask
-app = Flask(__name__)
+CURRENT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = CURRENT_DIR.parent
+
+app = Flask(
+    __name__,
+    template_folder=str(CURRENT_DIR),
+    static_folder=str(PROJECT_ROOT / "static"),
+    static_url_path="/static",
+)
 
 #Initializing global variables
 deck = None
@@ -93,10 +102,8 @@ class Player:
     #Task: Allows player to play a card of their choice
     #Precondition: Cards have been dealt & it's the player's turn
     #Postcondition: Card that has been selected will be played and removed from player's hand
-    def play_card(self, index, deck):
-        card = self.hand.pop(index)
-        deck.played_cards.append(card)
-        return card
+    def play_card(self, index):
+        return self.hand.pop(index)
 
 #Bot object (extends off Player class)
 class Bot(Player):
@@ -104,7 +111,7 @@ class Bot(Player):
     def __init__(self, name):
         super().__init__(name)
 
-    def choose_card(self, round):
+    def choose_card(self, round_state):
         points = {
             "1" : 1, "2" : 2, "3" : 3, "4" : 4,
             "5" : 5, "6" : 6, "7" : 7, "8" : 8,
@@ -117,7 +124,7 @@ class Bot(Player):
             return None
 
         #If there's no lead suit yet, play first card
-        lead_suit = round.lead_suit
+        lead_suit = round_state.lead_suit
         if lead_suit is None:
             return self.hand.pop(0)
 
@@ -127,8 +134,9 @@ class Bot(Player):
         #If bots have a matching suit, they play it
         if valid_cards:
             # 2. Find the most valuable card in the table
-            if deck.played_cards:
-                best_on_table = max(deck.played_cards, key=lambda c: points[c[1]])
+            current_trick_cards = [entry["card"] for entry in round_state.current_trick]
+            if current_trick_cards:
+                best_on_table = max(current_trick_cards, key=lambda c: points[c[1]])
                 power_on_table = points[best_on_table[1]]
             else:
                 power_on_table = 0
@@ -157,6 +165,7 @@ class Round:
         self.trumpSuit = None     #Trump suit for round
         self.current_trick = []   #Cards played in a sub-round
         self.lead_suit = None     #Leading card in a sub-round
+        self.trick_complete = False
         self.bids = {}
         self.dealer = None
         self.winning_bidder = None
@@ -338,27 +347,87 @@ def card_to_image(card):
     suit, rank = card
     return f"{suit}_{rank}.png"
 
+def card_to_path(card):
+    return f"/static/cards/{card_to_image(card)}"
+
+def trick_entry_to_payload(entry):
+    return {
+        "player": entry["player"],
+        "card_image": card_to_path(entry["card"]),
+    }
+
+def build_table_cards():
+    return [trick_entry_to_payload(entry) for entry in deck.round.current_trick]
+
+def build_bot_hand_counts():
+    return {
+        "player2": len(deck.player2.hand),
+        "player3": len(deck.player3.hand),
+        "player4": len(deck.player4.hand),
+    }
+
+def can_player_play():
+    return (
+        deck is not None
+        and deck.player1.bid is not None
+        and deck.round.trumpSuit is not None
+    )
+
+def clear_completed_trick():
+    deck.round.current_trick = []
+    deck.round.lead_suit = None
+    deck.round.trick_complete = False
+
+def is_json_request():
+    accept_header = request.headers.get("Accept", "")
+    return (
+        request.headers.get("X-Requested-With") == "XMLHttpRequest"
+        or "application/json" in accept_header
+    )
+
 def build_game_context():
     user_hand = deck.player1.show_hand()
     user_bid = deck.player1.bid
 
     # Convert each card to its image path
-    hand_images = [f"/static/cards/{card_to_image(card)}" for card in user_hand]
-    back_images = [f"/static/cards/card_back.png" for card in user_hand]
-    played_images = [f"/static/cards/{card_to_image(card)}" for card in deck.played_cards]
+    hand_images = [card_to_path(card) for card in user_hand]
+    card_back_image = "/static/cards/card_back.png"
+    bot_hand_counts = build_bot_hand_counts()
+    table_cards = build_table_cards()
+    can_play = can_player_play()
 
     return {
         "hand_images": hand_images,
-        "back_images": back_images,
-        "played_images": played_images,
+        "card_back_image": card_back_image,
+        "bot_hand_counts": bot_hand_counts,
+        "table_cards": table_cards,
         "user_bid": user_bid,
         "show_bid_modal": user_bid is None,
+        "can_play": can_play,
         "bids": getattr(deck.round, "bids", {}),
         "dealer": getattr(deck.round, "dealer", None),
         "winning_bidder": getattr(deck.round, "winning_bidder", None),
         "winning_bid": getattr(deck.round, "winning_bid", None),
         "trump_suit": deck.round.trumpSuit,
+        "initial_state": {
+            "hand_images": hand_images,
+            "card_back_image": card_back_image,
+            "bot_hand_counts": bot_hand_counts,
+            "table_cards": table_cards,
+            "can_play": can_play,
+            "trick_complete": deck.round.trick_complete,
+        },
     }
+
+
+@app.route("/assets/<path:filename>")
+def sprint_asset(filename):
+    return send_from_directory(CURRENT_DIR, filename)
+
+
+@app.route("/")
+def index():
+    return redirect("/start_game")
 
 #Task: API call to define starting a new game
 #Precondition: All associated objects have been created
@@ -455,6 +524,29 @@ def set_trump():
     )
     return redirect("/game")
 
+@app.route("/clear_trick", methods=["POST"])
+def clear_trick():
+    global deck
+
+    if deck is None:
+        if is_json_request():
+            return jsonify({"ok": False, "error": "Game not started."}), 400
+        return redirect("/game")
+
+    if deck.round.trick_complete:
+        clear_completed_trick()
+
+    payload = {
+        "ok": True,
+        "table_cards": build_table_cards(),
+        "trick_complete": deck.round.trick_complete,
+    }
+
+    if is_json_request():
+        return jsonify(payload)
+
+    return redirect("/game")
+
 #Task: API call to define the card selection function
 #Precondition: The cards have been dealt & it's the player's turn
 #Postcondition: The selected card will be removed from the player's hand and moved to the discard pile
@@ -462,32 +554,74 @@ def set_trump():
 def play_card():
     global deck
     if deck is None:
+        if is_json_request():
+            return jsonify({"ok": False, "error": "Game not started."}), 400
         return "Game not started."
 
-    index = int(request.form["index"])
+    if not can_player_play():
+        if is_json_request():
+            return jsonify({"ok": False, "error": "Finish the bid and trump selection first."}), 409
+        return redirect("/game")
+
+    if deck.round.trick_complete:
+        clear_completed_trick()
+
+    try:
+        index = int(request.form["index"])
+    except (KeyError, TypeError, ValueError):
+        if is_json_request():
+            return jsonify({"ok": False, "error": "Invalid card selection."}), 400
+        return redirect("/game")
+
+    if index < 0 or index >= len(deck.player1.hand):
+        if is_json_request():
+            return jsonify({"ok": False, "error": "Selected card is out of range."}), 400
+        return redirect("/game")
 
     #User plays a card
-    card = deck.player1.play_card(index, deck=deck)
+    card = deck.player1.play_card(index)
+    deck.played_cards.append(card)
     print(f"User played {card}")
 
     #Update the round state
-    if deck.round.lead_suit is None:
+    if not deck.round.current_trick:
         deck.round.lead_suit = card[0]
 
-    deck.round.current_trick.append(card)
+    user_entry = {"player": deck.player1.name, "card": card}
+    deck.round.current_trick.append(user_entry)
 
     #Bots play after the user
+    bot_plays = []
     for bot_player in [deck.player2, deck.player3, deck.player4]:
         bot_card = bot_player.choose_card(deck.round)
         if bot_card:
-            deck.round.current_trick.append(bot_card)
             deck.played_cards.append(bot_card)
+            bot_entry = {"player": bot_player.name, "card": bot_card}
+            deck.round.current_trick.append(bot_entry)
+            bot_plays.append({
+                **trick_entry_to_payload(bot_entry),
+                "remaining_hand_count": len(bot_player.hand),
+            })
             print(f"{bot_player.name} played {bot_card}")
     
     #After all 4 players play, restart trick
-    if len(deck.round.current_trick) == 4:
-        deck.round.current_trick = []
+    deck.round.trick_complete = len(deck.round.current_trick) == 4
+    if deck.round.trick_complete:
         deck.round.lead_suit = None
+
+    payload = {
+        "ok": True,
+        "player_card": trick_entry_to_payload(user_entry),
+        "player_card_image": card_to_path(card),
+        "bot_plays": bot_plays,
+        "hand_images": [card_to_path(hand_card) for hand_card in deck.player1.show_hand()],
+        "bot_hand_counts": build_bot_hand_counts(),
+        "table_cards": build_table_cards(),
+        "trick_complete": deck.round.trick_complete,
+    }
+
+    if is_json_request():
+        return jsonify(payload)
 
     return redirect("/game")
                 
