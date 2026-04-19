@@ -3,7 +3,8 @@ from flask import Flask, request, render_template, redirect, jsonify
 import random
 
 # Initialize Flask
-app = Flask(__name__)
+#Carlos -> i have added those folder paths to make it work for me
+app = Flask(__name__, template_folder=".", static_folder=".", static_url_path="/static")
 
 deck = None
 
@@ -92,7 +93,8 @@ class Player:
     def __init__(self, name):
         self.name = name       #Player Name (Player1, Player2, Player3, Dealer)
         self.hand = []         #Player's cards
-        self.bid = None           #Player's bid (default None)
+        # None means "bid has not been selected yet". This is required because 0 is a valid bid.
+        self.bid = None
         self.is_dealer = False #Is player the dealer?
 
     #Task: Adds card to a player's hand
@@ -115,12 +117,14 @@ class Player:
         deck.played_cards.append(card)
         return card
 
-#Round object
-class Round:
-    #Constructor
-    def __init__(self):
-        roundNumber = 0      #Number of the round
-        trumpSuit = '???'    #Trump suit for round
+#Carlos -> i have moved this here because with the run i doesn't work for me
+deck = Deck()
+deck.deal()
+
+#Also creted a / route to make it work for me
+@app.route("/")
+def index():
+    return redirect("/game")
 
 @app.route("/")
 def index():
@@ -156,6 +160,17 @@ def set_bid():
     if deck is None:
         return redirect("/game")
 
+    return render_template(
+        "game.html",
+        hand_images=hand_images,
+        played_images=played_images,
+        player_bid=deck.player1.bid,
+        is_bid_set=deck.player1.bid is not None #for the pop-up window logic
+    )
+
+""" Set bid """
+@app.route("/set_bid", methods=["POST"])
+def set_bid():
     # Bid is submitted by the popup form as plain text. Parse and validate it defensively.
     raw_bid = request.form.get("bid", "").strip()
 
@@ -166,11 +181,13 @@ def set_bid():
         # Ignore invalid payloads and return to the game view.
         return redirect("/game")
     
+    #Set min a max values for the bid for higher robustness
+
     if selected_bid < 0 or selected_bid > 18:
         # Keep the existing value unchanged when the range is invalid.
         return redirect("/game")
 
-    # Save the bid so the popup does not appear again during this game state.
+    #If bid is valid, set it to the player and load the game view
     deck.player1.bid = selected_bid
     return redirect("/game")
 

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<!--Top of "Gameboard" page-->
+<head>
+    <title>Gameboard for the Pitch Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<!--Body of "Home" page-->
+<body class="game-table">
+    <!--Displaying the picture of the card and selecting one-->
+    <div class = "hand-position-user">
+        <form method="POST" action="/play_card">
+            {% for image_path in hand_images %}
+                <button type="submit" name="index" value="{{ loop.index0 }}" class="card-button">
+                    <img src="{{ image_path }}" class="card-image">
+                </button>
+            {% endfor %}
+        </form>
+    </div>
+
+    <div class = "deck-stack">
+        {% for card_path in played_images %}
+            <img src="{{ card_path }}" class="card-image">
+        {% endfor %}
+    </div>
+
+    <div class="bid-display-panel">
+        <span class="bid-display-label">Your bid</span>
+        <strong class="bid-display-value">
+            {% if is_bid_set %}
+                {{ player_bid }}
+            {% else %}
+                Not selected
+            {% endif %}
+        </strong>
+    </div>
+
+    <!-- Bid modal -->
+    {% if not is_bid_set %}
+        <div class="bid-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="bid-modal-title">
+            <div class="bid-modal">
+                <h2 id="bid-modal-title">Choose Your Bid</h2>
+                <p>Select a value between 0 and 18.</p>
+
+                <form method="POST" action="/set_bid" id="bid-form" class="bid-form">
+                    <div class="bid-stepper" aria-label="Bid stepper controls">
+                        <button type="button" id="decrease-bid" class="bid-stepper-button" aria-label="Decrease bid">-</button>
+                        <input
+                            type="number"
+                            id="bid-input"
+                            name="bid"
+                            min="0"
+                            max="18"
+                            step="1"
+                            value="0"
+                            readonly
+                            aria-label="Selected bid"
+                        >
+                        <button type="button" id="increase-bid" class="bid-stepper-button" aria-label="Increase bid">+</button>
+                    </div>
+                    <button type="submit" class="confirm-bid-button">Confirm Bid</button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
