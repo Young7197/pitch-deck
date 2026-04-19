@@ -16,7 +16,7 @@ Date:                                               | 1/22/2026
 Hours Spent:                                        | 1 hour
 Type of component, implementation, or document:     | Charter
 Which specific part YOU worked on:                  | Project Summary, Stockholders, and Deliverables
-Summary:                                            | Prior our team had assigned roles to complete the Charter by Friday (January 23, 2026)                                                     | before class. Therefore if anyone had any questions about their section, we could
+Summary:                                            | Prior our team had assigned roles to complete the Charter by Friday (January 23, 2026)                                               | before class. Therefore if anyone had any questions about their section, we could
                                                     | clean it up as a group before the project leader (Sophia) had to hand it in. For the 
                                                     | project summary I had to access why the game needed top be created, and how it added
                                                     | value to the community. The deliverables are going to be the basic functions of the
@@ -86,7 +86,7 @@ Summary:                                            | Our team decided to split 
 Week: March 7 - 14 SPRING BREAK
 
 Week: March 15 - 22
-Total hours per week:
+Total hours per week: 5
 
 Date:                                               | March 16, 2026
 Hours Spent:                                        | 2 hours
@@ -107,5 +107,49 @@ Summary:                                            | As apart of sprint 1, our 
                                                     | function. I created the deck class and she will work on the User class that interacts
                                                     | with the deck. 
                                                     |
+
+Week: March 23 - March 29
+Total hours per week: 4
+
+Date:                                               | March 26, 2026
+Hours Spent:                                        | 4 hours
+Type of component, implementation, or document:     | implementation
+Which specific part YOU worked on:                  | app.py - API / documentation
+Summary:                                            | After our meeting on Wednesday, Alyssa asked me to tweak some of the API calls. I am
+                                                    | also responsible for the documentation for all meetings as Scrum Master. So I had to
+                                                    | learn how API calls functioned and the code for that, and catch up on paperwork. 
+  
+Week: March 29 - April 4
+Amount: 1 hour
+
+Date:                                               | April 1, 2026 
+Hours Spent:                                        | 1 hour
+Type of component, implementation, or document:     | implementation
+Which specific part YOU worked on:                  | score board logic
+Summary:                                            | For sprint 2, I was in charge of creating the scoring logic for the game pitch. This                                                      | takes in cards, and computes the points earned for each player. 
+                                                    |
+Week: April 5 - April 12
+Amount: 7 hours
+
+Date:                                               | April 9, 2026
+Hours Spent:                                        | 7
+Type of component, implementation, or document:     | implementation
+Which specific part YOU worked on:                  | scoreboard logic/interface
+Summary:                                            | In between each round of Pitch Deck, this functionality will take in each players                                                         | cards and calculate the amount of points each player has earned. The interface
+                                                    | presented the number of points each player won each round. 
+                                                    |
+
+Week: April 13 - April 19
+
+Date:                                               | April 13, 2026
+Hours Spent:                                        | 2
+Type of component, implementation, or document:     | Implentation
+Which specific part YOU worked on:                  | Sprint 3 Planning Document and Retrospective Document
+Summary:                                            | For Sprint 3, each team member was in charge of creating their own planning document.
+                                                    | I am in charge of adding more features into the scoring logic/interface, as well as
+                                                    | implementing into the code. The Retrospective document is another individual document
+                                                    | that is a reflection on how the team did. 
+                                                    |
+                            
 
                                                     

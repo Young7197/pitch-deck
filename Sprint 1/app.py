@@ -1,12 +1,9 @@
 #Libraries needed
-from flask import Flask, request, render_template, redirect, jsonify
+from flask import Flask, request, render_template, redirect
 import random
 
 # Initialize Flask
-#Carlos -> i have added those folder paths to make it work for me
-app = Flask(__name__, template_folder=".", static_folder=".", static_url_path="/static")
-
-deck = None
+app = Flask(__name__)
 
 #Deck Object
 class Deck:
@@ -27,6 +24,9 @@ class Deck:
 
         #Defining the list to keep track of played cards
         self.played_cards = []
+
+        #Defining the game state
+        self.round = Round()
         
     #Task: Deals 6 random cards to each player
     #Precondition: Round must start
@@ -64,28 +64,6 @@ class Deck:
                 
             if i in list(range(9, 12)) + list(range(21, 24)):
                 self.player4.add_card(randomSuit, randomCard)
-    
-#Task: Connects the card to their appropiate image
-#Precondition: Cards are created
-#Postcondition: Visible cards will have an associated image attached
-def card_to_image(card):
-    suit, rank = card
-    return f"{suit}_{rank}.png"
-
-def build_game_context():
-    user_hand = deck.player1.show_hand()
-    user_bid = deck.player1.bid
-
-    # Convert each card to its image path
-    hand_images = [f"/static/cards/{card_to_image(card)}" for card in user_hand]
-    played_images = [f"/static/cards/{card_to_image(card)}" for card in deck.played_cards]
-
-    return {
-        "hand_images": hand_images,
-        "played_images": played_images,
-        "user_bid": user_bid,
-        "show_bid_modal": user_bid is None,
-    }
 
 #Player Object
 class Player:
@@ -93,8 +71,7 @@ class Player:
     def __init__(self, name):
         self.name = name       #Player Name (Player1, Player2, Player3, Dealer)
         self.hand = []         #Player's cards
-        # None means "bid has not been selected yet". This is required because 0 is a valid bid.
-        self.bid = None
+        self.bid = 0           #Player's bid (default 0)
         self.is_dealer = False #Is player the dealer?
 
     #Task: Adds card to a player's hand
@@ -117,20 +94,27 @@ class Player:
         deck.played_cards.append(card)
         return card
 
-#Carlos -> i have moved this here because with the run i doesn't work for me
+#Round object
+class Round:
+    #Constructor
+    def __init__(self):
+        self.roundNumber = 0      #Number of the round
+        self.trumpSuit = '???'    #Trump suit for round
+
+#Initializing variables
 deck = Deck()
 deck.deal()
 
-#Also creted a / route to make it work for me
-@app.route("/")
-def index():
-    return redirect("/game")
+#Task: Connects the card to their appropiate image
+#Precondition: Cards are created
+#Postcondition: Visible cards will have an associated image attached
+def card_to_image(card):
+    suit, rank = card
+    return f"{suit}_{rank}.png"
 
-@app.route("/")
-def index():
-    return redirect("/start_game")
-
-#API starting game
+#Task: API call to define starting a new game
+#Precondition: All associated objects have been created
+#Postcondition: The user can restart the game
 @app.route("/start_game")
 def start_game():
     global deck              #creating global variable
@@ -138,65 +122,36 @@ def start_game():
     deck.deal()              #calling deal function
     return redirect("/game")
 
-@app.route("/game_state")
-def game_state():
-    if deck is None:
-        return jsonify({"error": "Game not started"})
-
-    return render_template("game.html", **build_game_context())
-    
-
+#Task: API call to define the gameboard screen and functions
+#Precondition: All associated objects have been initialized
+#Postcondition: The gameboard screen is displayed
 @app.route("/game")
 def home():
+    global deck
 
     if deck is None:
-        return "Game not started."
+        deck = Deck()
+        deck.deal()
 
-    return render_template("game.html", **build_game_context())
+    user_hand = deck.player1.show_hand()
+    user_bid = deck.player1
 
-# Store the bid selected in the opening modal.
-@app.route("/set_bid", methods=["POST"])
-def set_bid():
-    if deck is None:
-        return redirect("/game")
+    # Convert each card to its image path
+    hand_images = [f"/static/cards/{card_to_image(card)}" for card in user_hand]
+    played_images = [f"/static/cards/{card_to_image(card)}" for card in deck.played_cards]
 
-    return render_template(
-        "game.html",
-        hand_images=hand_images,
-        played_images=played_images,
-        player_bid=deck.player1.bid,
-        is_bid_set=deck.player1.bid is not None #for the pop-up window logic
-    )
+    return render_template("game.html", 
+    hand_images=hand_images, played_images=played_images, 
+    user_bid=user_bid, round=deck.round)
 
-""" Set bid """
-@app.route("/set_bid", methods=["POST"])
-def set_bid():
-    # Bid is submitted by the popup form as plain text. Parse and validate it defensively.
-    raw_bid = request.form.get("bid", "").strip()
-
-    try:
-        # Try to parse it into integer.
-        selected_bid = int(raw_bid)
-    except ValueError:
-        # Ignore invalid payloads and return to the game view.
-        return redirect("/game")
-    
-    #Set min a max values for the bid for higher robustness
-
-    if selected_bid < 0 or selected_bid > 18:
-        # Keep the existing value unchanged when the range is invalid.
-        return redirect("/game")
-
-    #If bid is valid, set it to the player and load the game view
-    deck.player1.bid = selected_bid
-    return redirect("/game")
-
+#Task: API call to define the card selection function
+#Precondition: The cards have been dealt & it's the player's turn
+#Postcondition: The selected card will be removed from the player's hand and moved to the discard pile
 @app.route("/play_card", methods=["GET", "POST"])
 def play_card():
     global deck
-
-    if deck is None or deck.player1.bid is None:
-        return redirect("/game")
+    if deck is None:
+        return "Game not started."
 
     index = int(request.form["index"])
     deck.player1.play_card(index, deck=deck)

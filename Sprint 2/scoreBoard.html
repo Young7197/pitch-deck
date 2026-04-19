@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pitch Deck Game - Scoreboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="scoreboard-container">
+        <!-- Title -->
+        <div class="header">
+            <h1>Pitch Deck Score</h1>
+        </div>
+
+        <!-- Winner and Bid Information -->
+        <div class="bid-info">
+            <p><strong>Bid Winner:</strong> {{ game_state.bid_winner }}</p>
+            <p><strong>Bid Amount:</strong> {{ game_state.bid_amount }}</p>
+        </div>
+
+        <!-- Score Display -->
+        <div class="scores-container">
+            <!-- Player 1 Score -->
+            <div class="score-box" id="player1">
+                <h3>Player 1</h3>
+                <p>Score: {{ game_state.player1_points }}</p>
+            </div>
+
+            <!-- Player 2 Score -->
+            <div class="score-box" id="player2">
+                <h3>Player 2</h3>
+                <p>Score: {{ game_state.player2_points }}</p>
+            </div>
+
+            <!-- Player 3 Score -->
+            <div class="score-box" id="player3">
+                <h3>Player 3</h3>
+                <p>Score: {{ game_state.player3_points }}</p>
+            </div>
+
+            <!-- Player 4 Score -->
+            <div class="score-box" id="player4">
+                <h3>Player 4</h3>
+                <p>Score: {{ game_state.player4_points }}</p>
+            </div>
+        </div>
+
+        <!--New Round Button-->
+        <form action="/new_score" method="GET">
+            <button type="submit">Start New Round</button>
+        </form>
+    </div>
+
+    <!-- Style -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .scoreboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            background-color: #033f6c;
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+        }
+
+        .bid-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .scores-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .score-box {
+            background-color: #ffffff;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            width: 200px;
+            height: 200px;
+            text-align: center;
+            padding: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .score-box h3 {
+            margin: 0;
+            color: #333;
+        }
+
+        .score-box p {
+            font-size: 18px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</body>
+</html>
+
