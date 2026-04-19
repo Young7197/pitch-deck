@@ -1,0 +1,27 @@
+1) Date on which you worked on the project.
+- April 15th & 16th
+
+2) Number of hours spent on that day.
+- About 2 and a half hours on April 15th
+- About 2 hours on April 16th
+
+3) Type of component, implementation or document.
+- Requirement #11 Intergration
+
+4) Which specific part did you work with, e.g. requirement number or section of a document.
+- Requirement #11 Implementation: I used the Bot class functionality in the API calls for the actual game itself and did the frontend
+- Requirement #3 Intergration: I intergrated Clayton's dealer, bid, and trump suit generator into the game.
+
+5) Brief summary (3-4 sentences) of what was accomplished during this time.
+- On Sunday (5th), I used the Bot class and its functions I created the previous week to add the bot's actions of actually placing
+down valid cards into the pile using turn-based logic after the play each trick (sub-round) and for their hands to get smaller as they do.
+On Tuesday (7th), I added the frontend where you can actually see the back of the bots cards and them placing cards in the discard pile. It 
+took me longer than expected since I couldn't get the container of their hands correct so their hands kept moving backwards after each card they 
+discarded but I figured it out after some trail and error. On Thursday (9th), I knew that Clayton was busy with his part after talking with him on 
+Wednesday in class so I intergrated his part last Sprint of the user chosing the trump suit and for the bids and dealer to be random. I know that
+I wasn't supose to take his part, but we need the dealer and trump suits going further so I needed to add his logic into ours. He will still be
+responsible for fixing up it's frontend design. That took much longer than I expected since I had to change his code to fit in with our own
+and use functions and classes that we have already established.
+
+6) Total number of hours worked during the week.
+- Over 5 hours and 40 minutes
