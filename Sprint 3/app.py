@@ -216,6 +216,11 @@ class Round:
         self.dealer = None
         self.winning_bidder = None
         self.winning_bid = None
+        self.lead_player = None
+        self.turn_order = []
+        self.opening_trick_pending = False
+        self.pending_auto_plays = []
+        self.round_lead_order_active = False
 
     #Passes round information to the Game object
     def get_results(self):
@@ -422,6 +427,134 @@ def build_table_cards():
     return [trick_entry_to_payload(entry) for entry in deck.round.current_trick]
 
 
+def default_turn_order():
+    return ["Player 1", "Player 2", "Player 3", "Player 4"]
+
+
+def build_turn_order(lead_player):
+    order = default_turn_order()
+    lead_index = order.index(lead_player)
+    return order[lead_index:] + order[:lead_index]
+
+
+def get_player_by_name(player_name):
+    if deck is None:
+        return None
+
+    for player in deck.players:
+        if player.name == player_name:
+            return player
+
+    return None
+
+
+def setup_first_trick_lead(lead_player):
+    # The winning bidder becomes the leader for the whole round, not only for
+    # the opening trick. Every new trick starts again from this same player.
+    deck.round.lead_player = lead_player
+    deck.round.turn_order = build_turn_order(lead_player)
+    deck.round.round_lead_order_active = True
+    deck.round.pending_auto_plays = []
+    deck.round.opening_trick_pending = lead_player != "Player 1"
+
+
+def get_active_turn_order():
+    # Keep the bid winner at the head of the order for the full round so every
+    # new trick restarts from that same player until a future round reset happens.
+    if deck.round.round_lead_order_active and deck.round.turn_order:
+        return deck.round.turn_order
+
+    return default_turn_order()
+
+
+def get_next_player_name():
+    active_order = get_active_turn_order()
+    trick_position = len(deck.round.current_trick)
+
+    if trick_position >= len(active_order):
+        return None
+
+    return active_order[trick_position]
+
+
+def can_player_play_now():
+    # The user can only interact when the round is ready and Player 1 is the next
+    # expected actor in the current trick order.
+    return (
+        deck is not None
+        and deck.player1.bid is not None
+        and deck.round.trumpSuit is not None
+        and not deck.round.trick_complete
+        and get_next_player_name() == "Player 1"
+    )
+
+
+def should_queue_bot_opening():
+    return (
+        deck is not None
+        and deck.round.trumpSuit is not None
+        and not deck.round.trick_complete
+        and get_next_player_name() is not None
+        and get_next_player_name() != "Player 1"
+    )
+
+
+def record_trick_play(player_name, card):
+    # The first card of the trick establishes the lead suit for follow-suit logic.
+    if not deck.round.current_trick:
+        deck.round.lead_suit = card[0]
+
+    deck.played_cards.append(card)
+    trick_entry = {"player": player_name, "card": card}
+    deck.round.current_trick.append(trick_entry)
+    return trick_entry
+
+
+def update_trick_completion():
+    deck.round.trick_complete = len(deck.round.current_trick) == 4
+
+    if deck.round.trick_complete:
+        deck.round.lead_suit = None
+
+
+def play_bot_turns_until_user_or_end(store_as_pending=False):
+    # This helper is reused in two moments:
+    # 1. immediately after bidding when a bot should open the first trick;
+    # 2. after the user plays, to let the remaining bots finish their turn sequence.
+    bot_plays = []
+
+    while True:
+        next_player_name = get_next_player_name()
+
+        if next_player_name is None or next_player_name == "Player 1":
+            break
+
+        bot_player = get_player_by_name(next_player_name)
+        if bot_player is None:
+            break
+
+        bot_card = bot_player.choose_card(deck.round)
+        if bot_card is None:
+            break
+
+        bot_entry = record_trick_play(bot_player.name, bot_card)
+        bot_payload = {
+            **trick_entry_to_payload(bot_entry),
+            "remaining_hand_count": len(bot_player.hand),
+        }
+        bot_plays.append(bot_payload)
+        print(f"{bot_player.name} played {bot_card}")
+
+    update_trick_completion()
+
+    if store_as_pending:
+        # The frontend uses this list to animate opening bot plays after the page renders.
+        deck.round.pending_auto_plays = list(bot_plays)
+        deck.round.opening_trick_pending = bool(bot_plays)
+
+    return bot_plays
+
+
 def build_bot_hand_counts():
     return {
         "player2": len(deck.player2.hand),
@@ -431,17 +564,28 @@ def build_bot_hand_counts():
 
 
 def can_player_play():
-    return (
-        deck is not None
-        and deck.player1.bid is not None
-        and deck.round.trumpSuit is not None
-    )
+    return can_player_play_now()
 
 
 def clear_completed_trick():
     deck.round.current_trick = []
     deck.round.lead_suit = None
     deck.round.trick_complete = False
+    deck.round.opening_trick_pending = False
+    deck.round.pending_auto_plays = []
+
+    # Do not reset the round leader order here: clearing a trick only resets the
+    # table state, while the bid winner must keep opening every trick in the round.
+
+
+def queue_next_trick_if_bot_leads():
+    # After a trick is cleared, the same round leader may need to open the next
+    # trick automatically again. This keeps the bid winner at the front of every
+    # trick until the round is reset.
+    if not should_queue_bot_opening():
+        return []
+
+    return play_bot_turns_until_user_or_end(store_as_pending=True)
 
 
 def is_json_request():
@@ -461,7 +605,7 @@ def build_game_context():
     card_back_image = "/static/cards/card_back.png"
     bot_hand_counts = build_bot_hand_counts()
     table_cards = build_table_cards()
-    can_play = can_player_play()
+    can_play_now = can_player_play_now()
 
     return {
         "winning_score": getattr(game, "winning_score", None),
@@ -471,19 +615,26 @@ def build_game_context():
         "table_cards": table_cards,
         "user_bid": user_bid,
         "show_bid_modal": user_bid is None,
-        "can_play": can_play,
+        "can_play_now": can_play_now,
+        "opening_trick_pending": deck.round.opening_trick_pending,
         "bids": getattr(deck.round, "bids", {}),
         "dealer": getattr(deck.round, "dealer", None),
         "winning_bidder": getattr(deck.round, "winning_bidder", None),
         "winning_bid": getattr(deck.round, "winning_bid", None),
+        "lead_player": deck.round.lead_player,
+        "turn_order": deck.round.turn_order,
         "trump_suit": deck.round.trumpSuit,
         "initial_state": {
             "hand_images": hand_images,
             "card_back_image": card_back_image,
             "bot_hand_counts": bot_hand_counts,
             "table_cards": table_cards,
-            "can_play": can_play,
+            "can_play_now": can_play_now,
             "trick_complete": deck.round.trick_complete,
+            "lead_player": deck.round.lead_player,
+            "turn_order": deck.round.turn_order,
+            "opening_trick_pending": deck.round.opening_trick_pending,
+            "pending_auto_plays": deck.round.pending_auto_plays,
         },
     }
 
@@ -602,16 +753,19 @@ def set_bid():
     deck.round.bids = bids
     deck.round.winning_bidder = winning_player
     deck.round.winning_bid = winning_bid
+    setup_first_trick_lead(winning_player)
 
     # If player won bid, just go back to game and let UI prompt for trump
     if winning_player == "Player 1":
         # Trump not assigned yet -> let user pick
         deck.round.trumpSuit = None
+        deck.round.opening_trick_pending = False
         return redirect("/game")
 
     # Bot wins -> pick random trump immediately
     trump_suit = game_controller.bid_manager.choose_trump_suit()
     deck.round.trumpSuit = trump_suit
+    play_bot_turns_until_user_or_end(store_as_pending=True)
     return redirect("/game")
 
 
@@ -643,11 +797,16 @@ def clear_trick():
 
     if deck.round.trick_complete:
         clear_completed_trick()
+        queue_next_trick_if_bot_leads()
 
     payload = {
         "ok": True,
         "table_cards": build_table_cards(),
         "trick_complete": deck.round.trick_complete,
+        "can_play_now": can_player_play_now(),
+        "opening_trick_pending": deck.round.opening_trick_pending,
+        "pending_auto_plays": deck.round.pending_auto_plays,
+        "bot_hand_counts": build_bot_hand_counts(),
     }
 
     if is_json_request():
@@ -667,9 +826,9 @@ def play_card():
             return jsonify({"ok": False, "error": "Game not started."}), 400
         return "Game not started."
 
-    if not can_player_play():
+    if not can_player_play_now():
         if is_json_request():
-            return jsonify({"ok": False, "error": "Finish the bid and trump selection first."}), 409
+            return jsonify({"ok": False, "error": "It is not the player's turn yet."}), 409
         return redirect("/game")
 
     if deck.round.trick_complete:
@@ -689,33 +848,15 @@ def play_card():
 
     #User plays a card
     card = deck.player1.play_card(index)
-    deck.played_cards.append(card)
     print(f"User played {card}")
 
-    #Update the round state
-    if not deck.round.current_trick:
-        deck.round.lead_suit = card[0]
+    # Once the user acts, the opening bot animation has been fully consumed.
+    deck.round.opening_trick_pending = False
+    deck.round.pending_auto_plays = []
+    user_entry = record_trick_play(deck.player1.name, card)
 
-    user_entry = {"player": deck.player1.name, "card": card}
-    deck.round.current_trick.append(user_entry)
-
-    #Bots play after the user
-    bot_plays = []
-    for bot_player in [deck.player2, deck.player3, deck.player4]:
-        bot_card = bot_player.choose_card(deck.round)
-        if bot_card:
-            deck.played_cards.append(bot_card)
-            bot_entry = {"player": bot_player.name, "card": bot_card}
-            deck.round.current_trick.append(bot_entry)
-            bot_plays.append({
-                **trick_entry_to_payload(bot_entry),
-                "remaining_hand_count": len(bot_player.hand),
-            })
-            print(f"{bot_player.name} played {bot_card}")
-
-    deck.round.trick_complete = len(deck.round.current_trick) == 4
-    if deck.round.trick_complete:
-        deck.round.lead_suit = None
+    # Continue following the active turn order until the user is reached again or the trick ends.
+    bot_plays = play_bot_turns_until_user_or_end()
 
     payload = {
         "ok": True,
@@ -726,6 +867,7 @@ def play_card():
         "bot_hand_counts": build_bot_hand_counts(),
         "table_cards": build_table_cards(),
         "trick_complete": deck.round.trick_complete,
+        "can_play_now": can_player_play_now(),
     }
 
     if is_json_request():
