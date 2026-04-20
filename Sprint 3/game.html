@@ -1,19 +1,21 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <!--Heading of "Gameboard" page-->
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gameboard for the Pitch Game</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('sprint_asset', filename='style.css') }}">
 </head>
 
 <!--Body of "Gameboard" page-->
-<body>
-    <!--Button to start a new game-->
-    <form action="/start_game" method="GET">
-        <button type="submit">New Game</button>
-    </form>
+<body class="game-table">
+    <div class="table-toolbar">
+        <form action="/start_game" method="GET">
+            <button type="submit" class="new-game-button">New Game</button>
+        </form>
+    </div>
 
-    <!--Display the model for choosing that round's bid-->
     {% if show_bid_modal %}
         <div class="bid-modal-overlay">
             <div class="bid-modal">
@@ -32,19 +34,18 @@
     {% endif %}
 
     {% if winning_bidder == 'Player 1' and not trump_suit %}
-    <form method="POST" action="/set_trump" id="trumpForm">
-        <label for="trump_suit">Choose your trump suit:</label>
-        <select name="trump_suit" id="trump_suit">
-            <option value="clubs">Clubs</option>
-            <option value="diamonds">Diamonds</option>
-            <option value="hearts">Hearts</option>
-            <option value="spades">Spades</option>
-        </select>
-        <button type="submit">Submit Trump</button>
-    </form>
+        <form method="POST" action="/set_trump" id="trumpForm" class="trump-form">
+            <label for="trump_suit">Choose your trump suit:</label>
+            <select name="trump_suit" id="trump_suit">
+                <option value="clubs">Clubs</option>
+                <option value="diamonds">Diamonds</option>
+                <option value="hearts">Hearts</option>
+                <option value="spades">Spades</option>
+            </select>
+            <button type="submit">Submit Trump</button>
+        </form>
     {% endif %}
 
-    <!--Display the user's bid-->
     <div class="bid-display-panel">
         <span class="bid-display-label">Current Bid</span>
         <span class="bid-display-value">
@@ -56,7 +57,6 @@
         </span>
     </div>
 
-    <!--Display the round's trump suit-->
     <div class="trumpSuit-display-panel">
         <span class="bid-display-label">Round Trump Suit</span>
         <span class="bid-display-value">
@@ -68,60 +68,76 @@
         </span>
     </div>
 
-    <!--Displaying the cards in the user's hand and selecting one-->
-    <div class = "hand-position-user">
-        <form method="POST" action="/play_card">
-            {% for image_path in hand_images %}
-                <button type="submit" name="index" value="{{ loop.index0 }}" class="card-button">
-                    <img src="{{ image_path }}" class="card-image">
-                </button>
-            {% endfor %}
-        </form>
-    </div>
+    <div id="play-feedback" class="play-feedback" hidden></div>
 
-    <!--Displaying the cards in player2's hand (Bot)-->
-    <div class = "hand-position-player2">
-        <form method="POST" action="/play_card">
-            {% for image_path in back_images %}
-                <img src="{{ image_path }}" class="card-image">
-            {% endfor %}
-        </form>
-    </div>
+    <main
+        id="game-board"
+        class="game-board"
+        data-card-back="{{ card_back_image }}"
+        data-can-play="{{ 'true' if can_play else 'false' }}"
+    >
+        <div class="hand-position-player2 bot-hand-shell">
+            <div id="bot-hand-player2" class="bot-hand" data-player="Player 2">
+                {% for _ in range(bot_hand_counts["player2"]) %}
+                    <img src="{{ card_back_image }}" class="card-image" alt="Player 2 card back">
+                {% endfor %}
+            </div>
+        </div>
 
-    <!--Displaying the cards in player3's hand (Bot)-->
-    <div class = "hand-position-player3">
-        <form method="POST" action="/play_card">
-            {% for image_path in back_images %}
-                <img src="{{ image_path }}" class="card-image">
-            {% endfor %}
-        </form>
-    </div>
+        <div class="hand-position-player3 bot-hand-shell">
+            <div id="bot-hand-player3" class="bot-hand" data-player="Player 3">
+                {% for _ in range(bot_hand_counts["player3"]) %}
+                    <img src="{{ card_back_image }}" class="card-image" alt="Player 3 card back">
+                {% endfor %}
+            </div>
+        </div>
 
-    <!--Displaying the cards in player4's hand (Bot)-->
-    <div class = "hand-position-player4">
-        <form method="POST" action="/play_card">
-            {% for image_path in back_images %}
-                <img src="{{ image_path }}" class="card-image">
-            {% endfor %}
-        </form>
-    </div>
+        <div class="hand-position-player4 bot-hand-shell">
+            <div id="bot-hand-player4" class="bot-hand" data-player="Player 4">
+                {% for _ in range(bot_hand_counts["player4"]) %}
+                    <img src="{{ card_back_image }}" class="card-image" alt="Player 4 card back">
+                {% endfor %}
+            </div>
+        </div>
 
-    <!--Displaying the last card entered in the discard pile-->
-    <div class = "deck-stack">
-        {% for card_path in played_images %}
-            <img src="{{ card_path }}" class="card-image">
-        {% endfor %}
-    </div>
+        <section class="table-center" aria-label="Current trick">
+            <div class="table-center-glow"></div>
+            <div id="trick-slots" class="trick-slots" aria-hidden="true">
+                <div class="trick-slot trick-slot--player1" data-player="Player 1"></div>
+                <div class="trick-slot trick-slot--player2" data-player="Player 2"></div>
+                <div class="trick-slot trick-slot--player3" data-player="Player 3"></div>
+                <div class="trick-slot trick-slot--player4" data-player="Player 4"></div>
+            </div>
+            <div id="table-cards" class="table-cards">
+                {% for card in table_cards %}
+                    <img
+                        src="{{ card.card_image }}"
+                        class="table-card table-card--{{ card.player|lower|replace(' ', '') }} card-image"
+                        data-player="{{ card.player }}"
+                        alt="{{ card.player }} played card"
+                    >
+                {% endfor %}
+            </div>
+        </section>
 
-    <!--Style of the page-->
-    <style>
-        html, body {
-            background-color: lightgreen;            
-            font-family: Arial, sans-serif;
-            margin: 0px;
-            padding: 0px;
-        }
-    </style>
-    <script src="{{ url_for('static', filename='app.js') }}"></script>
+        <div class="hand-position-user">
+            <div id="player-hand" class="player-hand">
+                {% for image_path in hand_images %}
+                    <button
+                        type="button"
+                        class="card-button player-card-button"
+                        data-index="{{ loop.index0 }}"
+                        data-image="{{ image_path }}"
+                        {% if not can_play %}disabled{% endif %}
+                    >
+                        <img src="{{ image_path }}" class="card-image" alt="Player 1 card">
+                    </button>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+
+    <script id="initial-game-state" type="application/json">{{ initial_state | tojson }}</script>
+    <script src="{{ url_for('sprint_asset', filename='app.js') }}"></script>
 </body>
 </html>
