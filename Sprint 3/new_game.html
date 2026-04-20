@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<!--Heading of "New Game" page-->
+<head>
+    <title>Gameboard for the Pitch Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<!--Body of "New Game" page-->
+<body>
+    <!--Pitch Deck Title-->
+    <h1 style="font-size: 50px;">Pitch Deck</h1>
+    <h3 style="font-size: 20px;">An alternative version of the game Pitch</h3>
+
+    <!--Button to start a new game-->
+    <form action="/winning_value">
+        <button type="submit">New Game</button>
+    </form>
+
+    <!--Style of the page-->
+    <style>
+        html, body {          
+            margin: 0px;
+            padding: 0px;
+            background-color: lightgreen;
+        }
+
+        h1, h3 {
+            text-align: center;
+            position: relative;
+            top: 100px;
+            font-family: Georgia, serif;
+        }
+
+        button {
+            position: absolute;
+            top: 55%;
+            left: 50%;
+            width: 200px;
+            height: 60px;
+            transform: translate(-50%, -50%);
+            font-size: 18pt;
+            background-color: darkgreen;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
