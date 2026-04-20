@@ -1,31 +1,43 @@
 #Libraries needed
-from flask import Flask, request, render_template, redirect
+from pathlib import Path
+from flask import Flask, request, render_template, redirect, jsonify, send_from_directory
 import random
 
 # Initialize Flask
-app = Flask(__name__)
+CURRENT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = CURRENT_DIR.parent
+
+app = Flask(
+    __name__,
+    template_folder=str(CURRENT_DIR),
+    static_folder=str(PROJECT_ROOT / "static"),
+    static_url_path="/static",
+)
 
 #Initializing global variables
 game = None
 deck = None
 game_controller = None
 
+
 #Deck Object
 class Deck:
     #Constructor
-    def __init__(self):       
-        #Defining suits and their corresponding ranks 
+    def __init__(self):
+        #Defining suits and their corresponding ranks
         self.suits = ["Spades", "Clubs", "Hearts", "Diamonds"]
         self.spades = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"]
         self.clubs = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"]
         self.hearts = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"]
         self.diamonds = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King", "Ace"]
-        
+
         #Defining Players (Player1, Player2, Player3, Dealer)
         self.player1 = Player("Player 1") #User
         self.player2 = Bot("Player 2")    #Bot
         self.player3 = Bot("Player 3")    #Bot
         self.player4 = Bot("Player 4")    #Bot
+
+        self.players = [self.player1, self.player2, self.player3, self.player4]
 
         #Defining the list to keep track of played cards
         self.played_cards = []
@@ -33,45 +45,45 @@ class Deck:
         #Defining the game state
         self.round = Round(
             round_number=1,
-            players=[self.player1, self.player2, self.player3, self.player4]
+            players=self.players,
         )
-        
+
     #Task: Deals 6 random cards to each player
     #Precondition: Round must start
-    #Postcondition: Each player will have 6 random cards in their hand    
-    def deal(self):       
+    #Postcondition: Each player will have 6 random cards in their hand
+    def deal(self):
         #Loop to deal cards
         for i in range(24):
-
             #Choosing suit to pick from
             randomSuit = random.choice(self.suits)
-            
+
             #Selects card based on suit
             if randomSuit == "Spades":
                 randomCard = random.choice(self.spades)
-                self.spades.remove(randomCard)   
+                self.spades.remove(randomCard)
             elif randomSuit == "Clubs":
                 randomCard = random.choice(self.clubs)
-                self.clubs.remove(randomCard) 
+                self.clubs.remove(randomCard)
             elif randomSuit == "Hearts":
                 randomCard = random.choice(self.hearts)
-                self.hearts.remove(randomCard) 
+                self.hearts.remove(randomCard)
             else:
                 randomCard = random.choice(self.diamonds)
                 self.diamonds.remove(randomCard)
-            
+
             #Placing card with correct player
             if i in list(range(0, 3)) + list(range(12, 15)):
                 self.player1.add_card(randomSuit, randomCard)
-                
+
             if i in list(range(3, 6)) + list(range(15, 18)):
                 self.player2.add_card(randomSuit, randomCard)
-                
+
             if i in list(range(6, 9)) + list(range(18, 21)):
                 self.player3.add_card(randomSuit, randomCard)
-                
+
             if i in list(range(9, 12)) + list(range(21, 24)):
                 self.player4.add_card(randomSuit, randomCard)
+
 
 #Player Object
 class Player:
@@ -79,12 +91,12 @@ class Player:
     def __init__(self, name):
         self.name = name       #Player Name (Player1, Player2, Player3, Dealer)
         self.hand = []         #Player's cards
-        self.bid =  None       #Player's bid (default None)
+        self.bid = None        #Player's bid (default None)
         self.is_dealer = False #Is player the dealer?
 
     #Task: Adds card to a player's hand
     #Precondition: Round must start
-    #Postcondition: Each player will have a random card in their hand    
+    #Postcondition: Each player will have a random card in their hand
     def add_card(self, suit, card):
         self.hand.append((suit, card))
 
@@ -97,13 +109,12 @@ class Player:
     #Task: Allows player to play a card of their choice
     #Precondition: Cards have been dealt & it's the player's turn
     #Postcondition: Card that has been selected will be played and removed from player's hand
-    def play_card(self, index, deck):
-        card = self.hand.pop(index)
-        deck.played_cards.append(card)
-        return card
+    def play_card(self, index):
+        return self.hand.pop(index)
 
     def calculate_points(self):
         return 0
+
 
 #Bot object (extends off Player class)
 class Bot(Player):
@@ -111,12 +122,12 @@ class Bot(Player):
     def __init__(self, name):
         super().__init__(name)
 
-    def choose_card(self, round, deck):
+    def choose_card(self, round_state):
         points = {
-            "1" : 1, "2" : 2, "3" : 3, "4" : 4,
-            "5" : 5, "6" : 6, "7" : 7, "8" : 8,
-            "9" : 9, "10" : 10, "Jack" : 11,
-            "Queen" : 12, "King" : 13, "Ace" : 14
+            "1": 1, "2": 2, "3": 3, "4": 4,
+            "5": 5, "6": 6, "7": 7, "8": 8,
+            "9": 9, "10": 10, "Jack": 11,
+            "Queen": 12, "King": 13, "Ace": 14,
         }
 
         #If there's nothing in the bot's hand
@@ -124,7 +135,7 @@ class Bot(Player):
             return None
 
         #If there's no lead suit yet, play first card
-        lead_suit = round.lead_suit
+        lead_suit = round_state.lead_suit
         if lead_suit is None:
             return self.hand.pop(0)
 
@@ -133,28 +144,30 @@ class Bot(Player):
 
         #If bots have a matching suit, they play it
         if valid_cards:
-            # 2. Find the most valuable card in the table
-            if deck.played_cards:
-                best_on_table = max(deck.played_cards, key=lambda c: points[c[1]])
+            # Find the most valuable card already in the current trick.
+            current_trick_cards = [entry["card"] for entry in round_state.current_trick]
+            if current_trick_cards:
+                best_on_table = max(current_trick_cards, key=lambda c: points[c[1]])
                 power_on_table = points[best_on_table[1]]
             else:
                 power_on_table = 0
 
-            # 3. Filter the cards that can win
-            winning_cards = [c for c in valid_cards if points[c[1]] > power_on_table]
+            #Filter the cards that can win
+            winning_cards = [card for card in valid_cards if points[card[1]] > power_on_table]
 
             if winning_cards:
-                # Trowing the least valuable card
-                chosen_card = min(winning_cards, key=lambda c: points[c[1]])
+                # Throw the least valuable winning card.
+                chosen_card = min(winning_cards, key=lambda card: points[card[1]])
             else:
-                # cannot win, throwing the worse card
-                chosen_card = min(valid_cards, key=lambda c: points[c[1]])
+                # Cannot win, throw the worst card of the lead suit.
+                chosen_card = min(valid_cards, key=lambda card: points[card[1]])
         else:
             chosen_card = self.hand[0]
 
         #Remove chosen card from hand
         self.hand.remove(chosen_card)
         return chosen_card
+
 
 #Game object
 class Game:
@@ -171,6 +184,9 @@ class Game:
 
     #Player scores is updated at the end of each round
     def end_round(self):
+        if self.current_round is None:
+            return
+
         results = self.current_round.get_results()
 
         for player, points in results.items():
@@ -185,15 +201,17 @@ class Game:
                 return player
         return None
 
+
 #Round object
 class Round:
     #Constructor
     def __init__(self, round_number, players):
-        self.roundNumber = round_number #Number of the round
+        self.roundNumber = round_number  #Number of the round
         self.players = players
-        self.trumpSuit = None     #Trump suit for round
-        self.current_trick = []   #Cards played in a sub-round
-        self.lead_suit = None     #Leading card in a sub-round
+        self.trumpSuit = None            #Trump suit for round
+        self.current_trick = []          #Cards played in a sub-round
+        self.lead_suit = None            #Leading card in a sub-round
+        self.trick_complete = False
         self.bids = {}
         self.dealer = None
         self.winning_bidder = None
@@ -204,10 +222,10 @@ class Round:
         results = {}
 
         for player in self.players:
-            # Replace with your actual scoring logic
             results[player.name] = player.calculate_points()
 
         return results
+
 
 #Handles dealer selection
 #First dealer is chosen randomly
@@ -231,6 +249,7 @@ class DealerManager:
 
     def get_dealer_index(self):
         return self.dealer_index
+
 
 #Handles bidding and trump suit selection
 #Every player must either bid higher than the current high bid or pass (0)
@@ -315,7 +334,7 @@ class BidManager:
         if self.high_bidder_index is None:
             raise ValueError("No winning bidder found. Run collect_bids() first.")
 
-        # Player 1 wins → use provided suit
+        # Player 1 wins -> use provided suit
         if self.high_bidder_index == 0:
             if player_trump_suit is None:
                 # Don't assign anything yet; UI will prompt player
@@ -323,11 +342,12 @@ class BidManager:
             self.trump_suit = player_trump_suit
             print(f"Player 1 chooses trump: {self.trump_suit}")
         else:
-            # Bot wins → random suit
+            # Bot wins -> random suit
             self.trump_suit = random.choice(self.VALID_SUITS)
             print(f"{self.high_bidder_name} chooses trump: {self.trump_suit}")
 
         return self.trump_suit
+
 
 #Controls round flow by coordinating DealerManager and BidManager
 class GameController:
@@ -369,7 +389,7 @@ class GameController:
             "bids": bids,
             "winning_bidder": winning_player,
             "winning_bid": winning_bid,
-            "trump_suit": trump_suit
+            "trump_suit": trump_suit,
         }
 
     #End the current round and rotate dealer left
@@ -378,6 +398,7 @@ class GameController:
         self.round_number += 1
         print(f"\nNext dealer will be: {self.players[next_dealer_index]}")
 
+
 #Task: Connects the card to their appropiate image
 #Precondition: Cards are created
 #Postcondition: Visible cards will have an associated image attached
@@ -385,52 +406,126 @@ def card_to_image(card):
     suit, rank = card
     return f"{suit}_{rank}.png"
 
+
+def card_to_path(card):
+    return f"/static/cards/{card_to_image(card)}"
+
+
+def trick_entry_to_payload(entry):
+    return {
+        "player": entry["player"],
+        "card_image": card_to_path(entry["card"]),
+    }
+
+
+def build_table_cards():
+    return [trick_entry_to_payload(entry) for entry in deck.round.current_trick]
+
+
+def build_bot_hand_counts():
+    return {
+        "player2": len(deck.player2.hand),
+        "player3": len(deck.player3.hand),
+        "player4": len(deck.player4.hand),
+    }
+
+
+def can_player_play():
+    return (
+        deck is not None
+        and deck.player1.bid is not None
+        and deck.round.trumpSuit is not None
+    )
+
+
+def clear_completed_trick():
+    deck.round.current_trick = []
+    deck.round.lead_suit = None
+    deck.round.trick_complete = False
+
+
+def is_json_request():
+    accept_header = request.headers.get("Accept", "")
+    return (
+        request.headers.get("X-Requested-With") == "XMLHttpRequest"
+        or "application/json" in accept_header
+    )
+
+
 def build_game_context():
     user_hand = deck.player1.show_hand()
     user_bid = deck.player1.bid
 
     # Convert each card to its image path
-    hand_images = [f"/static/cards/{card_to_image(card)}" for card in user_hand]
-    back_images = [f"/static/cards/card_back.png" for card in user_hand]
-    played_images = [f"/static/cards/{card_to_image(card)}" for card in deck.played_cards]
+    hand_images = [card_to_path(card) for card in user_hand]
+    card_back_image = "/static/cards/card_back.png"
+    bot_hand_counts = build_bot_hand_counts()
+    table_cards = build_table_cards()
+    can_play = can_player_play()
 
     return {
         "winning_score": getattr(game, "winning_score", None),
         "hand_images": hand_images,
-        "back_images": back_images,
-        "played_images": played_images,
+        "card_back_image": card_back_image,
+        "bot_hand_counts": bot_hand_counts,
+        "table_cards": table_cards,
         "user_bid": user_bid,
         "show_bid_modal": user_bid is None,
+        "can_play": can_play,
         "bids": getattr(deck.round, "bids", {}),
         "dealer": getattr(deck.round, "dealer", None),
         "winning_bidder": getattr(deck.round, "winning_bidder", None),
         "winning_bid": getattr(deck.round, "winning_bid", None),
         "trump_suit": deck.round.trumpSuit,
+        "initial_state": {
+            "hand_images": hand_images,
+            "card_back_image": card_back_image,
+            "bot_hand_counts": bot_hand_counts,
+            "table_cards": table_cards,
+            "can_play": can_play,
+            "trick_complete": deck.round.trick_complete,
+        },
     }
+
+
+@app.route("/assets/<path:filename>")
+def sprint_asset(filename):
+    return send_from_directory(CURRENT_DIR, filename)
+
+
+@app.route("/")
+def index():
+    return redirect("/game")
+
 
 #First Page: Where the user starts a new game
 @app.route("/new_game")
 def new_game():
-    return render_template("new_game.html")
+    return redirect("/game")
+
 
 #Second Page: Where the user selects a winning value
 @app.route("/winning_value")
 def winning_value():
-    return render_template("winning_value.html")
+    return redirect("/game")
+
 
 #Task: API call to define starting a new game
 #Precondition: All associated objects have been created
 #Postcondition: The user can restart the game
-@app.route("/start_game", methods=["POST"])
+@app.route("/start_game", methods=["GET", "POST"])
 def start_game():
-    global deck, game_controller, game   #Create global variables
+    global deck, game_controller, game
 
-    score = request.form.get("score")
+    winning_score = getattr(game, "winning_score", None)
 
-    try:
-        winning_score = int(score)
-    except:
-        return redirect("/winning_value")
+    if request.method == "POST":
+        score = request.form.get("score", "").strip()
+
+        try:
+            winning_score = int(score)
+        except ValueError:
+            return redirect("/winning_value")
 
     #Reset the game state
     deck = Deck()
@@ -438,25 +533,34 @@ def start_game():
 
     players = [deck.player1, deck.player2, deck.player3, deck.player4]
 
-    game = Game(players, winning_score)
+    if winning_score is not None:
+        game = Game(players, winning_score)
+    else:
+        game = None
 
     game_controller = GameController()
     game_controller.start_game()
 
     return redirect("/game")
 
+
 #Task: API call to define the gameboard screen and functions
 #Precondition: All associated objects have been initialized
 #Postcondition: The gameboard screen is displayed
 @app.route("/game")
 def home():
-    global deck
+    global deck, game_controller
 
     if deck is None:
         deck = Deck()
         deck.deal()
 
+    if game_controller is None:
+        game_controller = GameController()
+        game_controller.start_game()
+
     return render_template("game.html", round=deck.round, **build_game_context())
+
 
 #Store the bid selected in the opening modal.
 @app.route("/set_bid", methods=["POST"])
@@ -479,7 +583,7 @@ def set_bid():
     except ValueError:
         #Ignore invalid payloads and return to the game view.
         return redirect("/game")
-    
+
     if selected_bid < 0 or selected_bid > 18:
         #Keep the existing value unchanged when the range is invalid.
         return redirect("/game")
@@ -491,7 +595,7 @@ def set_bid():
     dealer_index = game_controller.dealer_manager.get_dealer_index()
     bids, winning_player, winning_bid = game_controller.bid_manager.collect_bids(
         dealer_index,
-        player_bid=deck.player1.bid
+        player_bid=deck.player1.bid,
     )
 
     # Store bidding results
@@ -501,14 +605,15 @@ def set_bid():
 
     # If player won bid, just go back to game and let UI prompt for trump
     if winning_player == "Player 1":
-        # Trump not assigned yet → let user pick
+        # Trump not assigned yet -> let user pick
         deck.round.trumpSuit = None
         return redirect("/game")
 
-    # Bot wins → pick random trump immediately
+    # Bot wins -> pick random trump immediately
     trump_suit = game_controller.bid_manager.choose_trump_suit()
     deck.round.trumpSuit = trump_suit
     return redirect("/game")
+
 
 @app.route("/set_trump", methods=["POST"])
 def set_trump():
@@ -526,6 +631,31 @@ def set_trump():
     )
     return redirect("/game")
 
+
+@app.route("/clear_trick", methods=["POST"])
+def clear_trick():
+    global deck
+
+    if deck is None:
+        if is_json_request():
+            return jsonify({"ok": False, "error": "Game not started."}), 400
+        return redirect("/game")
+
+    if deck.round.trick_complete:
+        clear_completed_trick()
+
+    payload = {
+        "ok": True,
+        "table_cards": build_table_cards(),
+        "trick_complete": deck.round.trick_complete,
+    }
+
+    if is_json_request():
+        return jsonify(payload)
+
+    return redirect("/game")
+
+
 #Task: API call to define the card selection function
 #Precondition: The cards have been dealt & it's the player's turn
 #Postcondition: The selected card will be removed from the player's hand and moved to the discard pile
@@ -533,34 +663,76 @@ def set_trump():
 def play_card():
     global deck
     if deck is None:
+        if is_json_request():
+            return jsonify({"ok": False, "error": "Game not started."}), 400
         return "Game not started."
 
-    index = int(request.form["index"])
+    if not can_player_play():
+        if is_json_request():
+            return jsonify({"ok": False, "error": "Finish the bid and trump selection first."}), 409
+        return redirect("/game")
+
+    if deck.round.trick_complete:
+        clear_completed_trick()
+
+    try:
+        index = int(request.form["index"])
+    except (KeyError, TypeError, ValueError):
+        if is_json_request():
+            return jsonify({"ok": False, "error": "Invalid card selection."}), 400
+        return redirect("/game")
+
+    if index < 0 or index >= len(deck.player1.hand):
+        if is_json_request():
+            return jsonify({"ok": False, "error": "Selected card is out of range."}), 400
+        return redirect("/game")
 
     #User plays a card
-    card = deck.player1.play_card(index, deck=deck)
+    card = deck.player1.play_card(index)
+    deck.played_cards.append(card)
     print(f"User played {card}")
 
     #Update the round state
-    if deck.round.lead_suit is None:
+    if not deck.round.current_trick:
         deck.round.lead_suit = card[0]
 
-    deck.round.current_trick.append(card)
+    user_entry = {"player": deck.player1.name, "card": card}
+    deck.round.current_trick.append(user_entry)
 
     #Bots play after the user
+    bot_plays = []
     for bot_player in [deck.player2, deck.player3, deck.player4]:
-        bot_card = bot_player.choose_card(deck.round, deck)
+        bot_card = bot_player.choose_card(deck.round)
         if bot_card:
-            deck.round.current_trick.append(bot_card)
             deck.played_cards.append(bot_card)
+            bot_entry = {"player": bot_player.name, "card": bot_card}
+            deck.round.current_trick.append(bot_entry)
+            bot_plays.append({
+                **trick_entry_to_payload(bot_entry),
+                "remaining_hand_count": len(bot_player.hand),
+            })
             print(f"{bot_player.name} played {bot_card}")
-    
-    #After all 4 players play, restart trick
-    if len(deck.round.current_trick) == 4:
-        deck.round.current_trick = []
+
+    deck.round.trick_complete = len(deck.round.current_trick) == 4
+    if deck.round.trick_complete:
         deck.round.lead_suit = None
 
+    payload = {
+        "ok": True,
+        "player_card": trick_entry_to_payload(user_entry),
+        "player_card_image": card_to_path(card),
+        "bot_plays": bot_plays,
+        "hand_images": [card_to_path(hand_card) for hand_card in deck.player1.show_hand()],
+        "bot_hand_counts": build_bot_hand_counts(),
+        "table_cards": build_table_cards(),
+        "trick_complete": deck.round.trick_complete,
+    }
+
+    if is_json_request():
+        return jsonify(payload)
+
     return redirect("/game")
-                
+
+
 if __name__ == "__main__":
     app.run(debug=True)
