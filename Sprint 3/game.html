@@ -74,7 +74,7 @@
         id="game-board"
         class="game-board"
         data-card-back="{{ card_back_image }}"
-        data-can-play="{{ 'true' if can_play else 'false' }}"
+        data-can-play="{{ 'true' if can_play_now else 'false' }}"
     >
         <div class="hand-position-player2 bot-hand-shell">
             <div id="bot-hand-player2" class="bot-hand" data-player="Player 2">
@@ -109,14 +109,16 @@
                 <div class="trick-slot trick-slot--player4" data-player="Player 4"></div>
             </div>
             <div id="table-cards" class="table-cards">
-                {% for card in table_cards %}
-                    <img
-                        src="{{ card.card_image }}"
-                        class="table-card table-card--{{ card.player|lower|replace(' ', '') }} card-image"
-                        data-player="{{ card.player }}"
-                        alt="{{ card.player }} played card"
-                    >
-                {% endfor %}
+                {% if not opening_trick_pending %}
+                    {% for card in table_cards %}
+                        <img
+                            src="{{ card.card_image }}"
+                            class="table-card table-card--{{ card.player|lower|replace(' ', '') }} card-image"
+                            data-player="{{ card.player }}"
+                            alt="{{ card.player }} played card"
+                        >
+                    {% endfor %}
+                {% endif %}
             </div>
         </section>
 
@@ -128,7 +130,7 @@
                         class="card-button player-card-button"
                         data-index="{{ loop.index0 }}"
                         data-image="{{ image_path }}"
-                        {% if not can_play %}disabled{% endif %}
+                        {% if not can_play_now %}disabled{% endif %}
                     >
                         <img src="{{ image_path }}" class="card-image" alt="Player 1 card">
                     </button>

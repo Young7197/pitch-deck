@@ -104,7 +104,25 @@ function initializeAnimatedBoard() {
     let clearPromise = null;
 
     const cardBackImage = state.card_back_image || board.dataset.cardBack;
-    const canInteract = () => Boolean(state.can_play) && !isAnimating && !clearPromise;
+    let pendingOpeningPlays = Array.isArray(state.pending_auto_plays) ? [...state.pending_auto_plays] : [];
+    let finalBotHandCounts = { ...state.bot_hand_counts };
+    let finalCanPlayNow = Boolean(state.can_play_now);
+
+    const applyPendingOpeningRollback = () => {
+        // When bots must open a trick, the server already knows the resolved cards.
+        // The client rewinds the visual state so those cards can still animate in.
+        if (!state.opening_trick_pending || pendingOpeningPlays.length === 0) {
+            return;
+        }
+
+        state.table_cards = [];
+        state.bot_hand_counts = inflateBotHandCounts(finalBotHandCounts, pendingOpeningPlays);
+        state.can_play_now = false;
+    };
+
+    applyPendingOpeningRollback();
+
+    const canInteract = () => Boolean(state.can_play_now) && !isAnimating && !clearPromise;
 
     const syncCardButtons = () => {
         playerHand.querySelectorAll(".player-card-button").forEach((button) => {
@@ -295,13 +313,30 @@ function initializeAnimatedBoard() {
                 const payload = await requestTrickClear();
                 state.table_cards = Array.isArray(payload.table_cards) ? payload.table_cards : [];
                 state.trick_complete = Boolean(payload.trick_complete);
+                state.can_play_now = Boolean(payload.can_play_now);
+                state.opening_trick_pending = Boolean(payload.opening_trick_pending);
+                pendingOpeningPlays = Array.isArray(payload.pending_auto_plays) ? [...payload.pending_auto_plays] : [];
+                finalBotHandCounts = payload.bot_hand_counts ? { ...payload.bot_hand_counts } : { ...state.bot_hand_counts };
+                finalCanPlayNow = Boolean(payload.can_play_now);
+                state.bot_hand_counts = payload.bot_hand_counts ? { ...payload.bot_hand_counts } : state.bot_hand_counts;
             } catch (error) {
                 console.error(error);
                 state.table_cards = [];
                 state.trick_complete = false;
+                state.can_play_now = false;
+                state.opening_trick_pending = false;
+                pendingOpeningPlays = [];
             }
 
+            applyPendingOpeningRollback();
             renderTableCards();
+
+            if (state.opening_trick_pending && pendingOpeningPlays.length > 0) {
+                clearPromise = null;
+                await runPendingOpeningSequence();
+                return;
+            }
+
             clearPromise = null;
             isAnimating = false;
             syncCardButtons();
@@ -338,7 +373,10 @@ function initializeAnimatedBoard() {
 
             const payload = await playRequest;
             state.hand_images = Array.isArray(payload.hand_images) ? payload.hand_images : state.hand_images;
-            state.table_cards = payload.player_card ? [payload.player_card] : [];
+            state.table_cards = payload.player_card
+                ? [...state.table_cards, payload.player_card]
+                : state.table_cards;
+            state.can_play_now = Boolean(payload.can_play_now);
             renderPlayerHand();
             renderTableCards();
 
@@ -378,6 +416,7 @@ function initializeAnimatedBoard() {
             state.bot_hand_counts = payload.bot_hand_counts || state.bot_hand_counts;
             state.table_cards = Array.isArray(payload.table_cards) ? payload.table_cards : state.table_cards;
             state.trick_complete = Boolean(payload.trick_complete);
+            state.can_play_now = Boolean(payload.can_play_now);
             renderBotHands();
             renderTableCards();
 
@@ -407,11 +446,77 @@ function initializeAnimatedBoard() {
         handleCardPlay(button);
     });
 
+    const runPendingOpeningSequence = async () => {
+        if (!state.opening_trick_pending || pendingOpeningPlays.length === 0) {
+            return;
+        }
+
+        hideFeedback();
+        isAnimating = true;
+        syncCardButtons();
+
+        // Animate each previously resolved bot lead into the table before the user gains control.
+        for (const [index, botPlay] of pendingOpeningPlays.entries()) {
+            await wait(index === 0 ? 240 : BOT_PLAY_DELAY_MS);
+
+            const sourceElement = botHands[botPlay.player]?.querySelector(".card-image:last-child") || botHands[botPlay.player];
+            if (sourceElement) {
+                await animateToSlot({
+                    sourceElement,
+                    imagePath: cardBackImage,
+                    player: botPlay.player,
+                    hideSource: true,
+                });
+            }
+
+            state.table_cards = [...state.table_cards, {
+                player: botPlay.player,
+                card_image: botPlay.card_image,
+            }];
+            renderTableCards();
+
+            const botKey = BOT_COUNT_KEYS[botPlay.player];
+            if (botKey) {
+                state.bot_hand_counts[botKey] = botPlay.remaining_hand_count;
+                renderSingleBotHand(botPlay.player, botPlay.remaining_hand_count);
+            }
+        }
+
+        state.bot_hand_counts = finalBotHandCounts;
+        state.opening_trick_pending = false;
+        state.pending_auto_plays = [];
+        state.can_play_now = finalCanPlayNow;
+        isAnimating = false;
+        syncCardButtons();
+    };
+
     renderBoard();
+
+    if (state.opening_trick_pending && pendingOpeningPlays.length > 0) {
+        runPendingOpeningSequence();
+        return;
+    }
 
     if (state.trick_complete && state.table_cards.length > 0) {
         scheduleTrickClear();
     }
+}
+
+function inflateBotHandCounts(finalCounts, pendingPlays) {
+    const inflatedCounts = { ...finalCounts };
+
+    // The server counts are post-play counts, so we add back pending opening plays
+    // to recreate the pre-animation visual stack for each bot.
+    pendingPlays.forEach((botPlay) => {
+        const botKey = BOT_COUNT_KEYS[botPlay.player];
+        if (!botKey) {
+            return;
+        }
+
+        inflatedCounts[botKey] = (inflatedCounts[botKey] || 0) + 1;
+    });
+
+    return inflatedCounts;
 }
 
 function wait(durationMs) {
