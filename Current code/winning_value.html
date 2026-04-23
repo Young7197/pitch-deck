@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<!--Heading of "Winning Value" page-->
+<head>
+    <title>Gameboard for the Pitch Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<!--Body of "Winning Value" page-->
+<body>
+    <!--Winning Value Title-->
+    <h1 class="title">Choose a Winning Value</h1>
+
+    <!--Each Winning Value Button-->
+    <div class="center-wrapper">
+        <div class="button-grid">
+            <form action="/start_game" method="POST">
+                <button name="score" value="25">25</button>
+                <button name="score" value="50">50</button>
+                <button name="score" value="75">75</button>
+                <button name="score" value="100">100</button>
+            </form>
+        </div>
+    </div>
+
+    <!--Style of the page-->
+    <style>
+        html, body {          
+            margin: 0;
+            background-color: lightgreen;
+        }
+
+        /* Header stays at top naturally */
+        .title {
+            text-align: center;
+            font-size: 50px;
+            margin-top: 80px;
+        }
+
+        /* ONLY centers the grid */
+        .center-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: 60px;
+        }
+
+        /* Grid layout */
+        .button-grid form {
+            display: grid;
+            grid-template-columns: repeat(2, 120px);
+            gap: 30px;
+        }
+
+        /* Buttons */
+        .button-grid button {
+            background-color: darkgreen;
+            color: white;
+            width: 120px;
+            height: 100px;
+            font-size: 30px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
