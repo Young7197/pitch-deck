@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<!--Heading of "Gameboard" page-->
+<head>
+    <title>Enter Username</title>
+</head>
+
+<!--Body of "Gameboard" page-->
+<body>
+    <h1>Enter Your Username</h1>
+
+    <!--User inputs their username-->
+    <form method="POST" action="/set_username">
+        <input 
+            type="text" 
+            name="username" 
+            placeholder="Username" 
+            maxlength="20" 
+            required
+        >
+        <br>
+        <button type="submit">Continue</button>
+    </form>
+
+    <!--Style of the page-->
+    <style>
+        body {
+            background-color: lightgreen;
+            font-family: Georgia, serif;
+            text-align: center;
+            padding-top: 120px;
+        }
+
+        h1 {
+            font-size: 48px;
+        }
+
+        input {
+            width: 260px;
+            height: 40px;
+            font-size: 20px;
+            padding: 5px;
+            border-radius: 8px;
+            border: 2px solid darkgreen;
+            text-align: center;
+        }
+
+        button {
+            margin-top: 20px;
+            width: 200px;
+            height: 55px;
+            font-size: 20px;
+            background-color: darkgreen;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+    </style>
+</body>
+</html>
