@@ -3,26 +3,29 @@
 
 2) Number of hours spent on that day.
 - About 2 hours and 15 minutes on April 22th
-- About 3 hours and 10 minutes on April 23th
+- About 3 hours and 40 minutes on April 23th
 - About an hour on April 24th
 
 3) Type of component, implementation or document.
 - Requirement #4 Implementation
+- Partial Requirement #9 Implementation
 - New Requirement Integration
 
 4) Which specific part did you work with, e.g. requirement number or section of a document.
 - Requirement #4 Implementation: I created the several API calls and functions for the discard phase while also creating a working,
   visual model for the frontend.
+- Partial Requirement #9 Implementation: I created the API call and frontend model for the 'Round Over' screen after each round ends.
 - New Requirement Integration: I integrated Clayton's code for allowing the user to create their own player name each game as well as
   created the frontend for the nametags & new screen.
 
 5) Brief summary (3-4 sentences) of what was accomplished during this time.
 - On Wednesday (22th), I created several API calls for the discard phase to work, including functions such as processing the discarded
 cards and getting the discard data and status. On Thursday (23th), I created the frontend for the the discard phase, including creating
-the discard model, the card lock and stamp for trump suit cards, and changing the new cards images with the associated ones. Finally, on 
-Friday morning, I got Clayton's code for his assigned feature and since he wasn't going to appear during the review meeting, I integrated
-his part with the current code and added a few frontend details to make this change visible such as player nametags and a HTML screen so 
-the user can choose their name. Granted, this did result in a few minor errors with the animation.
+the discard model, the card lock and stamp for trump suit cards, and changing the new cards images with the associated ones. I also quickly
+implemented part of requirement 9 where at the end of each round, a pop-up will appear indicating the end and prompting the user to either
+start a new round or end the game. Finally, on  Friday morning, I got Clayton's code for his assigned feature and since he wasn't going to 
+appear during the review meeting, I integrated his part with the current code and added a few frontend details to make this change visible 
+such as player nametags and a HTML screen so the user can choose their name. Granted, this did result in a few minor errors with the animation.
 
 6) Total number of hours worked during the week.
-- Over 6 hours and 25 minutes
+- Over 6 hours and 55 minutes
