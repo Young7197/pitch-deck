@@ -1,0 +1,25 @@
+1) Date on which you worked on the project.
+- April 15th & 16th
+
+2) Number of hours spent on that day.
+- About 2 hours and 20 minutes on April 15th
+- About 2 hours on April 16th
+
+3) Type of component, implementation or document.
+- Requirement #5 Intergration
+
+4) Which specific part did you work with, e.g. requirement number or section of a document.
+- Requirement #5 Intergration: I created the Game class on the backend & the New Game page and Winning Value page on the frontend
+
+5) Brief summary (3-4 sentences) of what was accomplished during this time.
+- On Wednesday (5th), I created the Game class in order for our Pitch Deck application to have multiple rounds and so each game
+could have a winning value the player has to play until so the game can end. This took longer than expected since I had to make
+the Round class derived off of the Game class and change the code to some of our previously created API calls so that each new game 
+state would affected by the Game class, not the Round class. On Thursday, I created the frontend the to beginning of the game so now
+instead of starting out one the gameboard itself, the user starts on a New Game screen which creates a new game of Pitch Deck. They 
+are then redirected to the Winning Value screen where the user can choose the winning value for that game. Since these screen where
+implemented, I also took the New Game button from our gameboard and changed it to a Leave Game button that redirects the user back 
+to the New Game page so they can start the game all over again.
+
+6) Total number of hours worked during the week.
+- Over 4 hours and 20 minutes
