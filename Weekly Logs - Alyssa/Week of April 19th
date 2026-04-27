@@ -14,11 +14,15 @@
 - Requirement #4 Implementation: I created the several API calls and functions for the discard phase while also creating a working,
   visual model for the frontend.
 - New Requirement Integration: I integrated Clayton's code for allowing the user to create their own player name each game as well as
-  created the frontend for the players' nametags.
+  created the frontend for the nametags & new screen.
 
 5) Brief summary (3-4 sentences) of what was accomplished during this time.
 - On Wednesday (22th), I created several API calls for the discard phase to work, including functions such as processing the discarded
-cards and getting the discard data and status. On Thursday (23th), I created the frontend for the 
+cards and getting the discard data and status. On Thursday (23th), I created the frontend for the the discard phase, including creating
+the discard model, the card lock and stamp for trump suit cards, and changing the new cards images with the associated ones. Finally, on 
+Friday morning, I got Clayton's code for his assigned feature and since he wasn't going to appear during the review meeting, I integrated
+his part with the current code and added a few frontend details to make this change visible such as player nametags and a HTML screen so 
+the user can choose their name. Granted, this did result in a few minor errors with the animation.
 
 6) Total number of hours worked during the week.
 - Over 6 hours and 25 minutes
