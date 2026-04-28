@@ -150,6 +150,28 @@ Summary:                                            | For Sprint 3, each team me
                                                     | implementing into the code. The Retrospective document is another individual document
                                                     | that is a reflection on how the team did. 
                                                     |
+ Week: April 20 - April 27
+
+Date:                                               | April 22, 2026
+Hours Spent:                                        | 3 hours
+Type of component, implementation, or document:     | implementation
+Which specific part YOU worked on:                  | scoreboard/implementation of it 
+Summary:                                            | I finished the scoreboard, by adding the points that each player won. I then was in
+                                                    | charge of implementing it into the rest of the code. I realiezed that there was no
+                                                    | logic for who won each sub-round while placing the cards out. There was also no place
+                                                    | where those cards were being stored for the scoring logic to work. So I started
+                                                    | working on that. 
+                                                    |
+
+
+Date:                                               | April 24, 2026
+Hours Spent:                                        | 8 hours 
+Type of component, implementation, or document:     | implementation
+Which specific part YOU worked on:                  | implementing scoreboard
+Summary:                                            | My logic for winning the sub round and placing that cards in a container that each
+                                                    | player won was not working correctly. I worked on that for the majority. Then when I
+                                                    | tried to get the scoreboard to appear between rounds it did not work. 
+                                                    |
                             
 
                                                     
